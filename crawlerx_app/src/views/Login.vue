@@ -55,7 +55,7 @@
             login: function () {
                 firebase.auth().signInWithEmailAndPassword(this.email, this.password).then(
                     () => {
-                        this.$router.replace('home');
+                        this.$router.replace('dashboard');
                     },
                     (err) => {
                         alert('Error while login - ' + err.message);
@@ -66,7 +66,7 @@
                 const provider = new firebase.auth.GoogleAuthProvider();
 
                 firebase.auth().signInWithPopup(provider).then(() => {
-                        this.$router.replace('home');
+                        this.$router.replace('dashboard');
                 }).catch((err) => {
                         alert('Error while login - ' + err.message);
                 });
