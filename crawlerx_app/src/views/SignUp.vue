@@ -49,7 +49,7 @@
             signUp: function () {
                 firebase.auth().createUserWithEmailAndPassword(this.email, this.password).then(
                     () => {
-                        this.$router.replace('home');
+                        this.$router.replace('dashboard');
                     },
                     (err) => {
                         alert('Error while login - ' + err.message);
