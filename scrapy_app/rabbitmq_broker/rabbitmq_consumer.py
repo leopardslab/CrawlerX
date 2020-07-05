@@ -37,13 +37,13 @@ def schedule_crawl_job(body):
         }
 
         # to list available spiders in the project
-        # print(scrapyd.list_spiders(job_project))
+        #print(scrapyd.list_spiders("crawlerx_project"))
 
         # Schedule a crawl job with project and a specific spider
-        # task = scrapyd.schedule(job_project, 'crawlerx', settings=settings, url=job_url, domain=job_domain)
+        task = scrapyd.schedule("crawlerx_project", 'crawlerx', settings=settings, url=job_url, domain=job_domain)
 
         # task id of the crawl job
-        # print(task)
+        print("Crawling job has beed started with ID - " + task);
     except:
         logging.exception("Error while scheduling the crawl job with default project")
 
