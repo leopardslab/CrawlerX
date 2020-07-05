@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
 import scrapy
-from scrapy.linkextractors import LinkExtractor
-from scrapy.spiders import CrawlSpider, Rule
+from scrapy.spiders import CrawlSpider
 
+class CrawlItem(scrapy.Item):
+    name = scrapy.Field()
+    link = scrapy.Field()
 
 class CrawlerxSpider(CrawlSpider):
     name = 'crawlerx'
@@ -13,15 +15,13 @@ class CrawlerxSpider(CrawlSpider):
         self.start_urls = [self.url]
         self.allowed_domains = [self.domain]
 
-        CrawlerxSpider.rules = [
-            Rule(LinkExtractor(unique=True), callback='parse_item'),
-        ]
         super(CrawlerxSpider, self).__init__(*args, **kwargs)
 
-    def parse_item(self, response):
-        # You can tweak each crawled page here
-        # Don't forget to return an object.
-        i = {}
-        i['url'] = response.url
-        return i
+    def parse(self, response):
+        for sel in response.xpath('//a'):
+            item = CrawlItem()
+            item['name'] = sel.xpath('text()').extract()
+            item['link'] = sel.xpath('@href').extract()
+
+            yield item
 

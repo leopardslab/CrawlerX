@@ -1,24 +1,35 @@
-# # from main.models import ScrapyItem
-# import json
-#
-# class ScrapyAppPipeline:
-#     def __init__(self, unique_id, *args, **kwargs):
-#         self.unique_id = unique_id
-#         self.items = []
-#
-#     @classmethod
-#     def from_crawler(cls, crawler):
-#         return cls(
-#             unique_id=crawler.settings.get('unique_id'), # this will be passed from django view
-#         )
-#
-#     def close_spider(self, spider):
-#         # And here we are saving our crawled data with django models.
-#         item = ScrapyItem()
-#         item.unique_id = self.unique_id
-#         item.data = json.dumps(self.items)
-#         item.save()
-#
-#     def process_item(self, item, spider):
-#         self.items.append(item['url'])
-#         return item
+
+import pymongo
+import logging
+
+
+class ScrapyAppPipeline:
+    collection_name = 'jobs'
+
+    def __init__(self, mongo_uri, mongo_db):
+        self.mongo_uri = mongo_uri
+        self.mongo_db = mongo_db
+
+
+    @classmethod
+    def from_crawler(cls, crawler):
+        return cls(
+            mongo_uri=crawler.settings.get('MONGO_URI'),
+            mongo_db=crawler.settings.get('MONGO_DATABASE')
+        )
+
+    def open_spider(self, spider):
+        ## initializing spider
+        ## opening db connection
+        self.client = pymongo.MongoClient(self.mongo_uri)
+        self.db = self.client[self.mongo_db]
+
+    def close_spider(self, spider):
+        ## clean up when spider is closed
+        self.client.close()
+
+    def process_item(self, item, spider):
+        ## how to handle each post
+        self.db[self.collection_name].insert(dict(item))
+        logging.info("Post added to MongoDB")
+        return item
