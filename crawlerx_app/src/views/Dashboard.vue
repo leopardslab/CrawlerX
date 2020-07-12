@@ -6,8 +6,9 @@
         <div class="">
             <md-toolbar md-get-palette-color="red" md-elevation="1">
                 <h3 class="md-title" style="flex: 1"><b>CrawlerX</b> - Open-Source Crawling Platform</h3>
-                <md-button>Refresh</md-button>
-                <md-button class="md-primary" @click="logout">Logout</md-button>
+                <b-button v-b-modal.modal-new-project variant="outline-secondary">Create a Project</b-button>
+                <b-button v-b-modal.modal-new-job variant="outline-secondary" class="ml-2">Schedule a Job</b-button>
+                <b-button variant="primary" class="ml-2" @click="logout">Logout</b-button>
             </md-toolbar>
             <sidebar-menu
                     :menu="menu"
@@ -23,8 +24,76 @@
                     class="sidebar-overlay"
                     @click="collapsed = true"></div>
         </div>
-    </div>
 
+        <b-modal id="modal-new-project" size="lg" title="Create a new project">
+            <form ref="form" @submit.stop.prevent="handleSubmit">
+                <b-form-group
+                        :state="nameState"
+                        label="Project Name:"
+                        label-for="name-input"
+                        invalid-feedback="Name is required"
+                >
+                    <b-form-input
+                            id="name-input"
+                            v-model="name"
+                            :state="nameState"
+                            required
+                    ></b-form-input>
+                </b-form-group>
+            </form>
+        </b-modal>
+
+        <b-modal id="modal-new-job" size="lg" title="Create a new crawl job">
+            <form ref="form" @submit.stop.prevent="handleSubmit">
+                <b-form-group
+                        :state="nameState"
+                        label="Job Name:"
+                        label-for="name-input"
+                        invalid-feedback="Name is required"
+                >
+                    <b-form-input
+                            id="name-input"
+                            v-model="name"
+                            :state="nameState"
+                            required
+                    ></b-form-input>
+                </b-form-group>
+                <b-form-group
+                        label="Project:"
+                        label-for="project-input"
+                >
+                    <b-form-select v-model="selected" :options="projectOptions" />
+                </b-form-group>
+                <b-form-group
+                        :state="nameState"
+                        label="Crawling Type:"
+                        label-for="crawl-type-input"
+                >
+                    <b-form-select v-model="selected" :options="crawlOptions" />
+                </b-form-group>
+                <b-form-group
+                        label="URLs:"
+                        :state="urlsState"
+                        label-for="url-input"
+                >
+                    <b-form-tags
+                            input-id="url-tags"
+                            :input-attrs="{ 'aria-describedby': 'tags-remove-on-delete-help' }"
+                            v-model="value"
+                            separator=" "
+                            placeholder="Enter new urls separated by space"
+                            remove-on-delete
+                            no-add-on-enter
+                            :state="urlsState"
+                            class="mb-2"
+                    ></b-form-tags>
+                    <b-form-text id="tags-remove-on-delete-help">
+                        Press <kbd>Backspace</kbd> to remove the last url entered
+                    </b-form-text>
+                </b-form-group>
+            </form>
+        </b-modal>
+    </div>
 </template>
 
 <script>
@@ -41,6 +110,14 @@
         components: {
             // HelloWorld,
         },
+        computed: {
+            nameState() {
+                return this.name.length > 0 ? true : false
+            },
+            urlsState() {
+                return this.value.length > 0 ? true : false
+            }
+        },
         data() {
             return {
                 menu: [
@@ -50,7 +127,7 @@
                         hiddenOnCollapse: true
                     },
                     {
-                        href: '/',
+                        href: '/dashboard',
                         title: 'Dashboard',
                         icon: 'fa fa-download'
                     },
@@ -60,7 +137,7 @@
                         hiddenOnCollapse: true
                     },
                     {
-                        href: '/projects',
+                        href: '/dashboard/projects',
                         title: 'Projects',
                         icon: 'fa fa-cogs'
                     },
@@ -85,7 +162,18 @@
                 ],
                 collapsed: false,
                 selectedTheme: 'Default theme',
-                isOnMobile: false
+                isOnMobile: false,
+                name: '',
+                selected: null,
+                projectOptions: [
+                    { value: 'a', text: 'This is First option' },
+                    { value: 'b', text: 'Selected Option' }
+                ],
+                crawlOptions: [
+                    { value: 'a', text: 'This is First option' },
+                    { value: 'b', text: 'Selected Option' }
+                ],
+                value: []
             }
         },
         mounted() {
@@ -99,13 +187,7 @@
                 })
             },
             onToggleCollapse(collapsed) {
-                console.log(collapsed)
                 this.collapsed = collapsed
-            },
-            onItemClick(event, item) {
-                console.log('onItemClick')
-                console.log(event)
-                console.log(item)
             },
             onResize() {
                 if (window.innerWidth <= 767) {
