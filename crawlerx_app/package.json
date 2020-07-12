@@ -9,6 +9,8 @@
   },
   "dependencies": {
     "@material-ui/core": "^4.9.14",
+    "bootstrap": "^4.5.0",
+    "bootstrap-vue": "^2.15.0",
     "core-js": "^3.6.4",
     "firebase": "^7.14.5",
     "node-sass": "^4.14.1",

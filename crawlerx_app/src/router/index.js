@@ -1,21 +1,20 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 import Dashboard from '../views/Dashboard.vue'
+import DashboardPage from '../components/Contents/Dashboard.vue'
 import Login from "../views/Login"
 import SignUp from "../views/SignUp"
 import firebase from 'firebase'
+import Projects from "../components/Contents/Projects";
 
 Vue.use(Router);
 
 const router = new Router({
+    mode:'history',
     routes: [
         {
             path: '*',
-            redirect: '/login'
-        },
-        {
-            path: '/',
-            redirect: '/login'
+            redirect: 'login'
         },
         {
             path: '/dashboard',
@@ -23,7 +22,21 @@ const router = new Router({
             component: Dashboard,
             meta: {
                 requiresAuth: true
-            }
+            },
+            children: [
+                {
+                    // UserProfile will be rendered inside User's <router-view>
+                    // when /user/:id/profile is matched
+                    path: '',
+                    component: DashboardPage
+                },
+                {
+                    // UserPosts will be rendered inside User's <router-view>
+                    // when /user/:id/posts is matched
+                    path: 'projects',
+                    component: Projects
+                }
+            ]
         },
         {
             path: '/about',

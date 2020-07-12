@@ -8,10 +8,17 @@ Vue.config.productionTip = false;
 import VueMaterial from 'vue-material'
 import 'vue-material/dist/vue-material.min.css'
 import 'vue-material/dist/theme/default.css'
+import { BootstrapVue, IconsPlugin } from 'bootstrap-vue'
 import SidebarMenu from './components/SideBar/SidebarMenu'
+import 'bootstrap/dist/css/bootstrap.css'
+import 'bootstrap-vue/dist/bootstrap-vue.css'
 
 Vue.use(VueMaterial);
 Vue.component('sidebar-menu', SidebarMenu);
+// Install BootstrapVue
+Vue.use(BootstrapVue)
+// Optionally install the BootstrapVue icon components plugin
+Vue.use(IconsPlugin)
 
 let app = '';
 
