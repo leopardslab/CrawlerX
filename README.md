@@ -5,13 +5,14 @@
 The CrawlerX is a platform which we can use for crawl web URLs in different kind of protocols in a distributed way. Web crawling often called web scraping is a method of programmatically going over a collection of web pages and extracting data which useful for data analysis with web-based data. With a web scraper, you can mine data about a set of products, get a large corpus of text or quantitative data to play around with, get data from a site without an official API, or just satisfy your own personal curiosity. 
 
 CrawlerX includes the following runtimes to do the crawling jobs for you. 
-  - **VueJS Frontend** - Dashboard which users intercat
-  - **Firebase** - User authorization & authentication
-  - **Django Backend Server** - which expose API endpoints for the frontend 
-  - **RabbitMQ Server** - Message broker 
-  - **RabbitMQ Listeners** - consumes messages from the RabbitMQ queue
-  - **Scrapy Server** - for extracting the data you need from websites
-  - **MongoDB Server** - for store crawled data
+
+- **VueJS Frontend** - Dashboard which users intercat
+- **Firebase** - User authorization & authentication
+- **Django Backend Server** - which expose API endpoints for the frontend 
+- **RabbitMQ Server** - Message broker 
+- **RabbitMQ Listeners** - consumes messages from the RabbitMQ queue
+- **Scrapy Server** - for extracting the data you need from websites
+- **MongoDB Server** - for store crawled data
 
 ### Setup
 
