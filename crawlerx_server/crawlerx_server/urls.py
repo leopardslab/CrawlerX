@@ -1,9 +1,11 @@
 from django.conf import settings
 from django.conf.urls import url, static
-from main import views
+from main.services import project, crawl_job
 
 urlpatterns = [
-    url(r'^api/crawl/', views.crawl, name='crawl'),
+    url(r'^api/project/create', project.project_create, name='create_project'),
+    url(r'^api/projects', project.get_projects, name='get_project'),
+    url(r'^api/crawl/new', crawl_job.crawl_new_job, name='crawl'),
 ]
 
 if settings.DEBUG:

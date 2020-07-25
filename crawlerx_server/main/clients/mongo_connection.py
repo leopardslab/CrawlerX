@@ -1,0 +1,36 @@
+import pymongo
+import logging
+import json
+from bson import json_util
+
+
+class MongoConnection:
+    mongo_uri = 'mongodb://localhost:27017'
+    mongo_db = 'crawlerx_db'
+
+    def __init__(self):
+        self.client = pymongo.MongoClient(self.mongo_uri)
+        self.db = self.client[self.mongo_db]
+
+    def close_connection(self):
+        # clean up when db is closed
+        self.client.close()
+
+    def upsert_item(self, item, collection_name):
+        # how to handle each post
+        data_item = dict(item)
+        self.db[collection_name]\
+            .update({'user_id': data_item['user_id'], 'project_name': data_item['project_name']}, data_item, True)
+        logging.info("Post added to MongoDB")
+        return item
+
+    def get_items(self, collection_name, user_id):
+        # retrieve data from database
+        cursor = self.db[collection_name].find({'user_id': user_id})
+        json_docs = []
+        for doc in cursor:
+            json_doc = json.dumps(doc, default=json_util.default)
+            json_docs.append(json.loads(json_doc))
+        return json_docs
+
+
