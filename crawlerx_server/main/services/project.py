@@ -25,7 +25,9 @@ def project_create(request):
 
     try:
         mongo_connection = MongoConnection()
-        mongo_connection.upsert_item(json_data, "projects")
+        data_item = dict(json_data)
+        query = {'user_id': data_item['user_id'], 'project_name': data_item['project_name']}
+        mongo_connection.upsert_item(query, data_item, "projects")
     except Exception as e:
         return JsonResponse({'Error': 'Error while connecting to the MongoDB database, ' + str(e)})
 
