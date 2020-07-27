@@ -7,6 +7,7 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from main.clients.mongo_connection import MongoConnection
 import json
+from bson import json_util
 
 from main.rabbitmq_sender import publish_data_to_broker
 
@@ -33,6 +34,7 @@ def crawl_new_job(request):
             url_data = json_data['urls']
             project_id = json_data['project_id']
             user_id = json_data['user_id']
+            crawler_name = json_data['crawler_name']
         except JSONDecodeError as e:
             return JsonResponse({'Error': 'Missing URLs in the request payload or empty, ' + str(e)})
 
@@ -45,15 +47,20 @@ def crawl_new_job(request):
         if not project_id:
             return JsonResponse({'Error': 'Missing project_name key in the request payload'})
 
+        if not crawler_name:
+            return JsonResponse({'Error': 'Missing crawler_name key in the request payload'})
+
         publish_url_ids = []
         for url in url_data:
             if not is_valid_url(url):
                 return JsonResponse({'error': url + ' URL is invalid'})
 
             unique_id = str(uuid4())  # create a unique ID.
-            publish_data = '{ "unique_id": ' + unique_id + ', "url":' + url + ', "project_id": ' \
-                           + project_id + ', "user_id": ' + user_id + ' }'
+            publish_data = u'{ "unique_id": "' + unique_id + '", "url": "' + url + '", "project_id": "' \
+                           + project_id + '", "user_id": "' + user_id + '", "crawler_name": "' + crawler_name \
+                           + '", "task_id":"", "status": "PENDING" }'
 
+            publish_data = json.loads(publish_data)
             try:
                 # send data to the RabbitMQ Queue through a sender
                 publish_data_to_broker(publish_data)
@@ -61,10 +68,9 @@ def crawl_new_job(request):
 
                 try:
                     # store job records in MongoDB database
-                    job_record = '{ "unique_id": ' + unique_id + ', "url":' + url + ', "project_id": ' \
-                           + project_id + ', "user_id": ' + user_id + ', "status": "PENDING" }'
+                    query = {'user_id': user_id, 'url': url, 'project_id': project_id, 'crawler_name': crawler_name}
                     mongo_connection = MongoConnection()
-                    mongo_connection.upsert_item(job_record, "jobs")
+                    mongo_connection.upsert_item(query, publish_data, "jobs")
                 except Exception as e:
                     return JsonResponse({'Error': 'Error while connecting to the MongoDB database, ' + str(e)})
             except Exception as e:
