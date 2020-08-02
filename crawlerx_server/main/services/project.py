@@ -2,6 +2,8 @@ from json import JSONDecodeError
 from django.views.decorators.http import require_http_methods
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
+
+from main.clients.firebase_auth import FirebaseAuth
 from main.clients.mongo_connection import MongoConnection
 import json
 
@@ -22,6 +24,12 @@ def project_create(request):
 
     except JSONDecodeError:
         return JsonResponse({'Error': 'Request payload does not contain required parameters or empty'})
+
+    # user Authorization
+    authorization_header = request.headers.get('Authorization')
+    auth = FirebaseAuth(authorization_header, user_id)
+    if not auth:
+        return JsonResponse({'Error': 'User authentication failed. Please try again with a valid user login'})
 
     try:
         mongo_connection = MongoConnection()
