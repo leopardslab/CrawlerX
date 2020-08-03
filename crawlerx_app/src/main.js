@@ -12,6 +12,7 @@ import { BootstrapVue, IconsPlugin } from 'bootstrap-vue'
 import SidebarMenu from './components/SideBar/SidebarMenu'
 import 'bootstrap/dist/css/bootstrap.css'
 import 'bootstrap-vue/dist/bootstrap-vue.css'
+import axios from "axios";
 
 Vue.use(VueMaterial);
 Vue.component('sidebar-menu', SidebarMenu);
@@ -19,6 +20,8 @@ Vue.component('sidebar-menu', SidebarMenu);
 Vue.use(BootstrapVue)
 // Optionally install the BootstrapVue icon components plugin
 Vue.use(IconsPlugin)
+
+Vue.prototype.$http = axios;
 
 let app = '';
 
@@ -36,6 +39,17 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 
 firebase.auth().onAuthStateChanged(() => {
+
+  // set user_id from the firebase
+  Vue.prototype.$USER_ID = firebase.auth().currentUser.uid;
+
+  // set token_id from the firebase
+  firebase.auth().currentUser.getIdToken(/* forceRefresh */ true).then(function(idToken) {
+    Vue.prototype.$TOKEN_ID = idToken;
+  }).catch(function(error) {
+    alert("Cannot fetch userId of the current logged user " + error.message);
+  });
+
   if (!app) {
     app = new Vue({
       router,

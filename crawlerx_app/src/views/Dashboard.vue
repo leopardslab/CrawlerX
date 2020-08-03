@@ -25,36 +25,38 @@
                     @click="collapsed = true"></div>
         </div>
 
-        <b-modal id="modal-new-project" size="lg" title="Create a new project">
-            <form ref="form" @submit.stop.prevent="handleSubmit">
+        <b-modal id="modal-new-project" ref="modal" size="lg" title="Create a new project"
+                 @show="resetProjectCreateModal" @hidden="resetProjectCreateModal" @ok="handleProjectCreateOk">
+            <b-form ref="form"  v-on:submit.prevent="createProject">
                 <b-form-group
-                        :state="nameState"
+                        :state="projectNameState"
                         label="Project Name:"
                         label-for="name-input"
                         invalid-feedback="Name is required"
                 >
                     <b-form-input
                             id="name-input"
-                            v-model="name"
-                            :state="nameState"
+                            v-model="projectName"
+                            :state="projectNameState"
                             required
                     ></b-form-input>
                 </b-form-group>
-            </form>
+            </b-form>
         </b-modal>
 
-        <b-modal id="modal-new-job" size="lg" title="Create a new crawl job">
-            <form ref="form" @submit.stop.prevent="handleSubmit">
+        <b-modal id="modal-new-job" size="lg" title="Create a new crawl job"
+                 @show="resetJobCreateModal" @hidden="resetJobCreateModal" @ok="handleJobCreateOk">
+            <form ref="form" @submit.stop.prevent="createJob">
                 <b-form-group
-                        :state="nameState"
+                        :state="jobNameState"
                         label="Job Name:"
                         label-for="name-input"
                         invalid-feedback="Name is required"
                 >
                     <b-form-input
                             id="name-input"
-                            v-model="name"
-                            :state="nameState"
+                            v-model="jobName"
+                            :state="jobNameState"
                             required
                     ></b-form-input>
                 </b-form-group>
@@ -97,13 +99,11 @@
 </template>
 
 <script>
+    import firebase from 'firebase'
+
     const separator = {
         template: `<hr style="border-color: rgba(0, 0, 0, 0.1); margin: 20px;">`
     };
-
-    // @ is an alias to /src
-    // import HelloWorld from '@/components/HelloWorld.vue'
-    import firebase from 'firebase'
 
     export default {
         name: 'Home',
@@ -111,15 +111,19 @@
             // HelloWorld,
         },
         computed: {
-            nameState() {
-                return this.name.length > 0 ? true : false
+            projectNameState() {
+                return this.projectName.length > 0
             },
             urlsState() {
-                return this.value.length > 0 ? true : false
+                return this.jobName.length > 0
+            },
+            jobNameState() {
+                return this.jobName.length > 0
             }
         },
         data() {
             return {
+                user_id: '',
                 menu: [
                     {
                         header: true,
@@ -163,7 +167,8 @@
                 collapsed: false,
                 selectedTheme: 'Default theme',
                 isOnMobile: false,
-                name: '',
+                projectName: '',
+                jobName: '',
                 selected: null,
                 projectOptions: [
                     { value: 'a', text: 'This is First option' },
@@ -177,8 +182,8 @@
             }
         },
         mounted() {
-            this.onResize()
-            window.addEventListener('resize', this.onResize)
+            this.onResize();
+            window.addEventListener('resize', this.onResize);
         },
         methods: {
             logout: function () {
@@ -187,16 +192,82 @@
                 })
             },
             onToggleCollapse(collapsed) {
-                this.collapsed = collapsed
+                this.collapsed = collapsed;
             },
             onResize() {
                 if (window.innerWidth <= 767) {
-                    this.isOnMobile = true
-                    this.collapsed = true
+                    this.isOnMobile = true;
+                    this.collapsed = true;
                 } else {
-                    this.isOnMobile = false
-                    this.collapsed = false
+                    this.isOnMobile = false;
+                    this.collapsed = false;
                 }
+            },
+            checkProjectCreateFormValidity() {
+                return this.projectName.length > 0;
+            },
+            resetProjectCreateModal() {
+                this.projectName = '';
+            },
+            handleProjectCreateOk(bvModalEvt) {
+                // Prevent modal from closing
+                bvModalEvt.preventDefault();
+                // Trigger submit handler
+                this.createProject()
+            },
+            createProject: function() {
+                // Exit when the form isn't valid
+                if (!this.checkProjectCreateFormValidity()) {
+                    return
+                }
+
+                this.$http.post('http://localhost:8000/api/project/create',
+                    JSON.stringify({'user_id': this.$USER_ID, 'project_name': this.projectName }),
+                    { headers: { 'Content-Type': 'application/x-www-form-urlencoded' }})
+                .then(response => {
+                    alert(response.data['message'])
+                })
+                .catch(e => {
+                    alert(e.getError().toString())
+                });
+
+                // Hide the modal manually
+                this.$nextTick(() => {
+                    this.$bvModal.hide('modal-new-project')
+                })
+            },
+            checkJobCreateFormValidity() {
+                return this.jobName.length > 0;
+            },
+            resetJobCreateModal() {
+                this.jobName = '';
+            },
+            handleJobCreateOk(bvModalEvt) {
+                // Prevent modal from closing
+                bvModalEvt.preventDefault();
+                // Trigger submit handler
+                this.createJob()
+            },
+            createJob: function() {
+                // Exit when the form isn't valid
+                if (!this.checkJobCreateFormValidity()) {
+                    return
+                }
+
+                this.$http.post('http://localhost:8000/api/crawl/new',
+                    JSON.stringify({'user_id': this.$USER_ID, 'project_id': '', 'urls':[], 'crawler_name':'' }),
+                    { headers: { 'Content-Type': 'application/x-www-form-urlencoded' }})
+                    .then(response => {
+                        alert(response.data['message'])
+                    })
+                    .catch(e => {
+                        alert(e.getError().toString())
+                    });
+
+                // Hide the modal manually
+                this.$nextTick(() => {
+                    this.$bvModal.hide('modal-new-job')
+                })
             }
         }
     }
