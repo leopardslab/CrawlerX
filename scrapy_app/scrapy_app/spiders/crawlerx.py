@@ -38,5 +38,4 @@ class CrawlerxSpider(CrawlSpider):
             crawled_data.append(item)
 
         parsed_item['data'] = crawled_data
-        print()
         yield parsed_item

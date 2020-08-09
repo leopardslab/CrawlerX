@@ -65,11 +65,15 @@ ROBOTSTXT_OBEY = True
 # Configure item pipelines
 # See https://docs.scrapy.org/en/latest/topics/item-pipeline.html
 ITEM_PIPELINES = {
-   'scrapy_app.pipelines.ScrapyAppPipeline': 300,
+   'scrapy_app.pipelines.ScrapyAppPipeline': 200,
 }
 
 MONGO_URI = 'mongodb://localhost:27017'
 MONGO_DATABASE = 'crawlerx_db'
+
+# ELASTIC_SEARCH_URI = "http://localhost"
+# ELASTIC_SEARCH_PORT = 9200
+
 
 # Enable and configure the AutoThrottle extension (disabled by default)
 # See https://docs.scrapy.org/en/latest/topics/autothrottle.html

@@ -1,5 +1,7 @@
 import pymongo
 import logging
+import json
+from elasticsearch import Elasticsearch
 
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger('logs')
@@ -10,6 +12,7 @@ class ScrapyAppPipeline:
     def __init__(self, mongo_uri, mongo_db):
         self.mongo_uri = mongo_uri
         self.mongo_db = mongo_db
+        self.es = Elasticsearch(HOST="http://localhost", PORT=9200)
 
     @classmethod
     def from_crawler(cls, crawler):
@@ -31,6 +34,7 @@ class ScrapyAppPipeline:
     def close_spider(self, spider):
         # clean up when spider is closed
         self.client.close()
+        self.es.close()
 
     def process_item(self, item, spider):
         query = {'unique_id': item['unique_id'], 'user_id': item['user_id'],
@@ -47,8 +51,24 @@ class ScrapyAppPipeline:
 
             self.db[job_collection_name].update_one(query, {'$set': {"status": "COMPLETED"}})
             logger.debug("Job data field has been successfully updated for the scheduled job")
+
+            # add data into the elastic search
+            try:
+                element_id = item['unique_id'] + '-' + item['task_id']
+                index = item['user_id'] + '-' + element_id
+                index_exists = self.es.indices.exists(index=index)
+
+                if not index_exists:
+                    self.es.indices.create(index=index)
+                item_body = json.dumps(item, default=lambda o: o.__dict__, sort_keys=True, indent=4)
+                self.es.index(index=index, id=element_id, body=item_body)
+
+                logger.info("Crawled data successfully indexed in the ElasticSearch")
+            except Exception as e:
+                logger.debug("Error while inserting data into the ElasticSearch" + str(e))
         except Exception as e:
             self.db[job_collection_name].update_one(query, {'$set': {"status": "FAILED"}})
             logger.debug("Job data field has been updated for the scheduled job" + str(e))
 
         return item
+
