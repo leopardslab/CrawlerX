@@ -13,13 +13,15 @@ import SidebarMenu from './components/SideBar/SidebarMenu'
 import 'bootstrap/dist/css/bootstrap.css'
 import 'bootstrap-vue/dist/bootstrap-vue.css'
 import axios from "axios";
+import VueSwal from 'vue-swal'
 
 Vue.use(VueMaterial);
 Vue.component('sidebar-menu', SidebarMenu);
 // Install BootstrapVue
-Vue.use(BootstrapVue)
+Vue.use(BootstrapVue);
 // Optionally install the BootstrapVue icon components plugin
-Vue.use(IconsPlugin)
+Vue.use(IconsPlugin);
+Vue.use(VueSwal);
 
 Vue.prototype.$http = axios;
 
@@ -39,16 +41,17 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 
 firebase.auth().onAuthStateChanged(() => {
+  if (firebase.auth().currentUser) {
+    // set user_id from the firebase
+    Vue.prototype.$USER_ID = firebase.auth().currentUser.uid;
 
-  // set user_id from the firebase
-  Vue.prototype.$USER_ID = firebase.auth().currentUser.uid;
-
-  // set token_id from the firebase
-  firebase.auth().currentUser.getIdToken(/* forceRefresh */ true).then(function(idToken) {
-    Vue.prototype.$TOKEN_ID = idToken;
-  }).catch(function(error) {
-    alert("Cannot fetch userId of the current logged user " + error.message);
-  });
+    // set token_id from the firebase
+    firebase.auth().currentUser.getIdToken(/* forceRefresh */ true).then(function(idToken) {
+      Vue.prototype.$TOKEN_ID = idToken;
+    }).catch(function(error) {
+      alert("Cannot fetch userId of the current logged user " + error.message);
+    });
+  }
 
   if (!app) {
     app = new Vue({
@@ -57,4 +60,3 @@ firebase.auth().onAuthStateChanged(() => {
     }).$mount('#app');
   }
 });
-
