@@ -65,16 +65,20 @@ router.beforeEach((to, from, next) => {
 
     if (requiresAuth && !currentUser) next('login');
     else if (!requiresAuth && currentUser) {
-        alert(firebase.auth().currentUser.uid);
+
         // set user_id from the firebase
-        Vue.prototype.$USER_ID = firebase.auth().currentUser.uid;
+        if (Vue.prototype.$USER_ID === undefined || Vue.prototype.$USER_ID === null || Vue.prototype.$USER_ID === false) {
+            Vue.prototype.$USER_ID = firebase.auth().currentUser.uid;
+        }
 
         // set token_id from the firebase
-        firebase.auth().currentUser.getIdToken(/* forceRefresh */ true).then(function(idToken) {
-            Vue.prototype.$TOKEN_ID = idToken;
-        }).catch(function(error) {
-            alert("Cannot fetch userId of the current logged user " + error.message);
-        });
+        if (Vue.prototype.$TOKEN_ID === undefined || Vue.prototype.$TOKEN_ID === null || Vue.prototype.$TOKEN_ID === false) {
+            firebase.auth().currentUser.getIdToken(/* forceRefresh */ true).then(function(idToken) {
+                Vue.prototype.$TOKEN_ID = idToken;
+            }).catch(function(error) {
+                alert("Cannot fetch userId of the current logged user " + error.message);
+            });
+        }
 
         next('dashboard');
     }

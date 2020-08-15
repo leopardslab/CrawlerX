@@ -36,7 +36,7 @@
                 >
                     <b-form-input
                             id="name-input"
-                            v-model="projectName"
+                            v-model="projectForm.projectName"
                             :state="projectNameState"
                             required
                     ></b-form-input>
@@ -55,7 +55,7 @@
                 >
                     <b-form-input
                             id="name-input"
-                            v-model="jobName"
+                            v-model="jobForm.jobName"
                             :state="jobNameState"
                             required
                     ></b-form-input>
@@ -64,24 +64,25 @@
                         label="Project:"
                         label-for="project-input"
                 >
-                    <b-form-select v-model="selected" :options="projectOptions" />
+                    <b-form-select v-model="jobForm.projectName" :options="projectOptions" />
                 </b-form-group>
                 <b-form-group
                         :state="nameState"
                         label="Crawling Type:"
                         label-for="crawl-type-input"
                 >
-                    <b-form-select v-model="selected" :options="crawlOptions" />
+                    <b-form-select v-model="jobForm.crawler" :options="crawlerOptions" />
                 </b-form-group>
                 <b-form-group
                         label="URLs:"
                         :state="urlsState"
                         label-for="url-input"
+                        invalid-feedback="Enter multiple HTTP or HTTPS valid URLs "
                 >
                     <b-form-tags
                             input-id="url-tags"
                             :input-attrs="{ 'aria-describedby': 'tags-remove-on-delete-help' }"
-                            v-model="value"
+                            v-model="jobForm.urlValue"
                             separator=" "
                             placeholder="Enter new urls separated by space"
                             remove-on-delete
@@ -111,6 +112,7 @@
 
 <script>
     import firebase from 'firebase'
+    import { EventBus } from '../router/bus'
 
     const separator = {
         template: `<hr style="border-color: rgba(0, 0, 0, 0.1); margin: 20px;">`
@@ -120,20 +122,50 @@
         name: 'Home',
         components: {
             // HelloWorld,
+        }, created() {
+            EventBus.$on('project_data', data => {
+                var currentProjectData = [];
+                data.forEach(function (obj) {
+                    currentProjectData.push(obj.project_name);
+                });
+
+                this.projectOptions = currentProjectData;
+                this.jobForm.projectName = this.projectOptions[currentProjectData.length - 1]
+            });
         },
         computed: {
             projectNameState() {
-                return this.projectName.length > 0
+                return this.projectForm.projectName.length > 0
             },
             urlsState() {
-                return this.jobName.length > 0
+                let regex = new RegExp(/^(http|https):\/\/[^ "]+$/);
+                if (this.jobForm.urlValue.length > 0) {
+                    var isValidUrl = true;
+                    this.jobForm.urlValue.forEach(function (obj) {
+                        if (!regex.test(obj.toString())) {
+                            isValidUrl = false;
+                        }
+                    });
+                    return isValidUrl;
+                }
+
+                return false;
             },
             jobNameState() {
-                return this.jobName.length > 0
+                return this.jobForm.jobName.length > 0
             }
         },
         data() {
             return {
+                jobForm: {
+                    jobName: '',
+                    crawler: 'crawlerx',
+                    projectName: null,
+                    urlValue: []
+                },
+                projectForm: {
+                    projectName: ''
+                },
                 user_id: '',
                 menu: [
                     {
@@ -178,18 +210,9 @@
                 collapsed: false,
                 selectedTheme: 'Default theme',
                 isOnMobile: false,
-                projectName: '',
-                jobName: '',
-                selected: null,
-                projectOptions: [
-                    { value: 'a', text: 'This is First option' },
-                    { value: 'b', text: 'Selected Option' }
-                ],
-                crawlOptions: [
-                    { value: 'a', text: 'This is First option' },
-                    { value: 'b', text: 'Selected Option' }
-                ],
-                value: []
+                projectOptions: [],
+                selectedProject: null,
+                crawlerOptions: ["crawlerx"]
             }
         },
         mounted() {
@@ -216,10 +239,10 @@
                 }
             },
             checkProjectCreateFormValidity() {
-                return this.projectName.length > 0;
+                return this.projectForm.projectName.length > 0;
             },
             resetProjectCreateModal() {
-                this.projectName = '';
+                this.projectForm.projectName = '';
             },
             handleProjectCreateOk(bvModalEvt) {
                 // Prevent modal from closing
@@ -234,8 +257,8 @@
                 }
 
                 this.$http.post('http://localhost:8000/api/project/create',
-                    JSON.stringify({'user_id': this.$USER_ID, 'project_name': this.projectName }),
-                    { headers: { 'Content-Type': 'application/x-www-form-urlencoded' }})
+                    JSON.stringify({'user_id': this.$USER_ID, 'project_name': this.projectForm.projectName }),
+                    { headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'Token': this.$TOKEN_ID }})
                 .then(response => {
                     this.$bvToast.toast(response.data['message'], {
                         title: 'Project Creation',
@@ -244,6 +267,8 @@
                         variant: 'success',
                         appendToast: false
                     });
+
+                    this.emitGlobalClickEventWhenProjectCreated()
                 })
                 .catch(e => {
                     this.$bvToast.toast(e.getError().toString(), {
@@ -253,7 +278,6 @@
                         variant: 'danger',
                         appendToast: false
                     });
-                    alert()
                 });
 
                 // Hide the modal manually
@@ -262,10 +286,11 @@
                 })
             },
             checkJobCreateFormValidity() {
-                return this.jobName.length > 0;
+                return !(!this.jobForm.jobName.length > 0 || !this.jobForm.crawler.length > 0
+                    || !this.jobForm.projectName.length > 0 || !this.jobForm.urlValue.length > 0);
             },
             resetJobCreateModal() {
-                this.jobName = '';
+                this.jobForm.jobName = '';
             },
             handleJobCreateOk(bvModalEvt) {
                 // Prevent modal from closing
@@ -280,13 +305,29 @@
                 }
 
                 this.$http.post('http://localhost:8000/api/crawl/new',
-                    JSON.stringify({'user_id': this.$USER_ID, 'project_id': '', 'urls':[], 'crawler_name':'' }),
+                    JSON.stringify({'user_id': this.$USER_ID, 'project_name': this.jobForm.projectName,
+                        'urls':this.jobForm.urlValue, 'crawler_name':this.jobForm.crawler,
+                        'job_name': this.jobForm.jobName }),
                     { headers: { 'Content-Type': 'application/x-www-form-urlencoded' }})
                     .then(response => {
-                        alert(response.data['message'])
+                        this.$bvToast.toast(response.data['message'], {
+                            title: 'Crawl Job Schedule',
+                            toaster: 'b-toaster-top-right',
+                            solid: true,
+                            variant: 'success',
+                            appendToast: false
+                        });
+
+                        this.emitGlobalClickEventWhenJobCreated();
                     })
                     .catch(e => {
-                        alert(e.getError().toString())
+                        this.$bvToast.toast(e.getError().toString(), {
+                            title: 'Crawl Job Schedule',
+                            toaster: 'b-toaster-top-right',
+                            solid: true,
+                            variant: 'danger',
+                            appendToast: false
+                        });
                     });
 
                 // Hide the modal manually
@@ -294,16 +335,11 @@
                     this.$bvModal.hide('modal-new-job')
                 })
             },
-            getCrawledJobData: function () {
-                this.$http.post('http://localhost:8000/api/project/jobs',
-                    JSON.stringify({'user_id': this.$USER_ID}),
-                    { headers: {'Content-Type': 'application/x-www-form-urlencoded' }})
-                    .then(response => {
-                        // console.log(response.data)
-                    })
-                    .catch(e => {
-                        alert(e.getError().toString())
-                    });
+            emitGlobalClickEventWhenProjectCreated() {
+                EventBus.$emit('project_created', 'data');
+            },
+            emitGlobalClickEventWhenJobCreated() {
+                EventBus.$emit('job_created', 'data');
             }
         }
     }
