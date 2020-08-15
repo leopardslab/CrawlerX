@@ -95,6 +95,17 @@
                 </b-form-group>
             </form>
         </b-modal>
+        <b-toast id="my-toast" variant="warning" solid>
+            <template>
+                <div class="d-flex flex-grow-1 align-items-baseline">
+                    <b-img blank blank-color="#ff5555" class="mr-2" width="12" height="12"></b-img>
+                    <strong class="mr-auto">Notice!</strong>
+                    <small class="text-muted mr-2">42 seconds ago</small>
+                </div>
+            </template>
+            This is the content of the toast.
+            It is short and to the point.
+        </b-toast>
     </div>
 </template>
 
@@ -184,6 +195,7 @@
         mounted() {
             this.onResize();
             window.addEventListener('resize', this.onResize);
+            this.getCrawledJobData();
         },
         methods: {
             logout: function () {
@@ -225,10 +237,23 @@
                     JSON.stringify({'user_id': this.$USER_ID, 'project_name': this.projectName }),
                     { headers: { 'Content-Type': 'application/x-www-form-urlencoded' }})
                 .then(response => {
-                    alert(response.data['message'])
+                    this.$bvToast.toast(response.data['message'], {
+                        title: 'Project Creation',
+                        toaster: 'b-toaster-top-right',
+                        solid: true,
+                        variant: 'success',
+                        appendToast: false
+                    });
                 })
                 .catch(e => {
-                    alert(e.getError().toString())
+                    this.$bvToast.toast(e.getError().toString(), {
+                        title: 'Project Creation',
+                        toaster: 'b-toaster-top-right',
+                        solid: true,
+                        variant: 'danger',
+                        appendToast: false
+                    });
+                    alert()
                 });
 
                 // Hide the modal manually
@@ -268,6 +293,17 @@
                 this.$nextTick(() => {
                     this.$bvModal.hide('modal-new-job')
                 })
+            },
+            getCrawledJobData: function () {
+                this.$http.post('http://localhost:8000/api/project/jobs',
+                    JSON.stringify({'user_id': this.$USER_ID}),
+                    { headers: {'Content-Type': 'application/x-www-form-urlencoded' }})
+                    .then(response => {
+                        // console.log(response.data)
+                    })
+                    .catch(e => {
+                        alert(e.getError().toString())
+                    });
             }
         }
     }

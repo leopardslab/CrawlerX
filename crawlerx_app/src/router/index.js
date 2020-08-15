@@ -64,7 +64,20 @@ router.beforeEach((to, from, next) => {
     const requiresAuth = to.matched.some(record => record.meta.requiresAuth);
 
     if (requiresAuth && !currentUser) next('login');
-    else if (!requiresAuth && currentUser) next('dashboard');
+    else if (!requiresAuth && currentUser) {
+        alert(firebase.auth().currentUser.uid);
+        // set user_id from the firebase
+        Vue.prototype.$USER_ID = firebase.auth().currentUser.uid;
+
+        // set token_id from the firebase
+        firebase.auth().currentUser.getIdToken(/* forceRefresh */ true).then(function(idToken) {
+            Vue.prototype.$TOKEN_ID = idToken;
+        }).catch(function(error) {
+            alert("Cannot fetch userId of the current logged user " + error.message);
+        });
+
+        next('dashboard');
+    }
     else next();
 });
 
