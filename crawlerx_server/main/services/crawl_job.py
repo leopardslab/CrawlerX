@@ -32,7 +32,8 @@ def crawl_new_job(request):
         try:
             json_data = json.loads(request.body)
             url_data = json_data['urls']
-            project_id = json_data['project_id']
+            job_name = json_data['job_name']
+            project_name = json_data['project_name']
             user_id = json_data['user_id']
             crawler_name = json_data['crawler_name']
         except JSONDecodeError as e:
@@ -41,10 +42,13 @@ def crawl_new_job(request):
         if not user_id:
             return JsonResponse({'Error': 'Missing user id key in the request payload'})
 
+        if not job_name:
+            return JsonResponse({'Error': 'Missing job name key in the request payload'})
+
         if not url_data:
             return JsonResponse({'Error': 'Missing urls key in the request payload'})
 
-        if not project_id:
+        if not project_name:
             return JsonResponse({'Error': 'Missing project_name key in the request payload'})
 
         if not crawler_name:
@@ -56,8 +60,9 @@ def crawl_new_job(request):
                 return JsonResponse({'error': url + ' URL is invalid'})
 
             unique_id = str(uuid4())  # create a unique ID.
-            publish_data = u'{ "unique_id": "' + unique_id + '", "url": "' + url + '", "project_id": "' \
-                           + project_id + '", "user_id": "' + user_id + '", "crawler_name": "' + crawler_name \
+            publish_data = u'{ "unique_id": "' + unique_id + '", "job_name": "' + job_name \
+                           + '", "url": "' + url + '", "project_name": "' \
+                           + project_name + '", "user_id": "' + user_id + '", "crawler_name": "' + crawler_name \
                            + '", "task_id":"", "status": "PENDING" }'
 
             publish_data = json.loads(publish_data)
@@ -68,7 +73,8 @@ def crawl_new_job(request):
 
                 try:
                     # store job records in MongoDB database
-                    query = {'user_id': user_id, 'url': url, 'project_id': project_id, 'crawler_name': crawler_name}
+                    query = {'user_id': user_id, 'job_name': job_name, 'url': url,
+                             'project_name': project_name, 'crawler_name': crawler_name}
                     mongo_connection = MongoConnection()
                     mongo_connection.upsert_item(query, publish_data, "jobs")
                 except Exception as e:
