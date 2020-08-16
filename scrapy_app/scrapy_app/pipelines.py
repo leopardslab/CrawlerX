@@ -38,7 +38,7 @@ class ScrapyAppPipeline:
 
     def process_item(self, item, spider):
         query = {'unique_id': item['unique_id'], 'user_id': item['user_id'],
-                 'task_id': item['task_id'], 'project_id': item['project_id']}
+                 'task_id': item['task_id'], 'job_name': item['job_name'], 'project_name': item['project_name']}
 
         # name of the all crawled data stored collection
         crawled_data_collection_name = 'crawled_data'

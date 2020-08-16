@@ -22,7 +22,7 @@ def schedule_crawl_job(body):
     # sample format of the consumed body
     # {
     #     "unique_id": "unique_id",
-    #     "project_id": "project_id",
+    #     "project_name": "project_name",
     #     "url": "url",
     #     "user_id": "user_id",
     #     "task_id": null,
@@ -35,12 +35,14 @@ def schedule_crawl_job(body):
         json_body = json.loads(body)
         unique_id = json_body["unique_id"]
         job_url = json_body["url"]
-        project_id = json_body["project_id"]
+        project_name = json_body["project_name"]
+        job_name = json_body["job_name"]
         user_id = json_body["user_id"]
         status = json_body["status"]
         crawler_name = json_body["crawler_name"]
 
-        if not unique_id or not job_url or not project_id or not user_id or not status or not crawler_name:
+        if not unique_id or not job_url or not project_name or not user_id or not status \
+                or not crawler_name or not job_name:
             raise Exception('Required parameters are missing in the consumed message')
 
         job_domain = urlparse(job_url).netloc
@@ -48,7 +50,8 @@ def schedule_crawl_job(body):
             settings = {
                 'unique_id': unique_id,
                 'user_id': user_id,
-                'project_id': project_id,
+                'job_name': job_name,
+                'project_name': project_name,
                 'USER_AGENT': 'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)'
             }
 
@@ -60,12 +63,14 @@ def schedule_crawl_job(body):
                 scrapyd.schedule("crawlerx_project", crawler_name, settings=settings, url=job_url, domain=job_domain)
 
             # update relevant MongoDC entry in jobs collection with task_id and status
-            update_data = u'{ "unique_id": "' + unique_id + '", "url": "' + job_url + '", "project_id": "' \
-                          + project_id + '", "user_id": "' + user_id + '", "crawler_name": "' + crawler_name \
+            update_data = u'{ "unique_id": "' + unique_id + '", "url": "' + job_url + '", "project_name": "' \
+                          + project_name + '", "job_name": "' + job_name + '", "user_id": "' + user_id \
+                          + '", "crawler_name": "' + crawler_name \
                           + '", "task_id": "' + task_id + '", "status": "RUNNING" }'
 
             data_item = json.loads(update_data)
-            query = {'user_id': user_id, 'url': job_url, 'project_id': project_id, 'crawler_name': crawler_name}
+            query = {'user_id': user_id, 'url': job_url, 'project_name': project_name, 'job_name': job_name,
+                     'crawler_name': crawler_name}
             mongo_connection = MongoConnection()
             mongo_connection.upsert_item(query, data_item, "jobs")
             mongo_connection.close_connection()

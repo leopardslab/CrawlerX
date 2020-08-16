@@ -26,7 +26,8 @@ class CrawlerxSpider(CrawlSpider):
         parsed_item = dict()
         parsed_settings = dict(self.settings)
         parsed_item['user_id'] = parsed_settings['user_id']
-        parsed_item['project_id'] = parsed_settings['project_id']
+        parsed_item['project_name'] = parsed_settings['project_name']
+        parsed_item['job_name'] = parsed_settings['job_name']
         parsed_item['unique_id'] = parsed_settings['unique_id']
         parsed_item['task_id'] = os.environ['SCRAPY_JOB']
 

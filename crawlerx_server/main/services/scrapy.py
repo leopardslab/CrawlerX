@@ -7,28 +7,23 @@ from scrapyd_api import ScrapydAPI
 import json
 
 # connect scrapyd service
-scrapyd = ScrapydAPI('http://localhost:6800')
+# scrapyd = ScrapydAPI('http://localhost:6800')
 
 @csrf_exempt
-@require_http_methods(['GET'])  # only get and post
+@require_http_methods(['POST'])  # only get and post
 def get_jobs(request):
+    try:
+        json_data = json.loads(request.body)
+        user_id = json_data['user_id']
+    except JSONDecodeError as e:
+        return JsonResponse({'Error': 'Missing user_id in the request payload or empty, ' + str(e)})
+
     # take urls comes from client.
     try:
         mongo_connection = MongoConnection()
-        json_data = mongo_connection.get_items("jobs", "sssss")
+        json_data = mongo_connection.get_items("jobs", user_id)
     except Exception as e:
         return JsonResponse({'Error': 'Error while getting job details from the database, ' + str(e)})
 
     return JsonResponse({'status': "SUCCESS", 'data': json_data})
 
-@csrf_exempt
-@require_http_methods(['GET'])  # only get and post
-def get_jobs(request):
-    # take urls comes from client.
-    try:
-        mongo_connection = MongoConnection()
-        json_data = mongo_connection.get_items("jobs", "sssss")
-    except Exception as e:
-        return JsonResponse({'Error': 'Error while getting job details from the database, ' + str(e)})
-
-    return JsonResponse({'status': "SUCCESS", 'data': json_data})

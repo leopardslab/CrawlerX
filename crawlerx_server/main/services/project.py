@@ -26,8 +26,10 @@ def project_create(request):
         return JsonResponse({'Error': 'Request payload does not contain required parameters or empty'})
 
     # user Authorization
-    authorization_header = request.headers.get('Authorization')
-    auth = FirebaseAuth(authorization_header, user_id)
+    token_header = request.headers.get('Token')
+    print(token_header)
+    auth = FirebaseAuth(token_header, user_id)
+    print(auth)
     if not auth:
         return JsonResponse({'Error': 'User authentication failed. Please try again with a valid user login'})
 
@@ -42,11 +44,21 @@ def project_create(request):
     return JsonResponse({'status': "SUCCESS", 'message': 'project created successfully'})
 
 @csrf_exempt
-@require_http_methods(['GET'])  # only get and post
+@require_http_methods(['POST'])  # only get and post
 def get_projects(request):
+
+    try:
+        json_data = json.loads(request.body)
+        user_id = json_data['user_id']
+        if not user_id:
+            return JsonResponse({'Error': 'Request payload does not contain user_id'})
+
+    except JSONDecodeError:
+        return JsonResponse({'Error': 'Request payload does not contain required parameters or empty'})
+
     try:
         mongo_connection = MongoConnection()
-        json_data = mongo_connection.get_items("projects", "sssss")
+        json_data = mongo_connection.get_items("projects", user_id)
     except Exception as e:
         return JsonResponse({'Error': 'Error while getting project details from the database, ' + str(e)})
 
