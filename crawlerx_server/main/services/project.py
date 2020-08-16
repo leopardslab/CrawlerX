@@ -16,11 +16,15 @@ def project_create(request):
         json_data = json.loads(request.body)
         user_id = json_data['user_id']
         project_name = json_data['project_name']
+        project_description = json_data['project_description']
         if not user_id:
             return JsonResponse({'Error': 'Request payload does not contain user_id'})
 
         if not project_name:
             return JsonResponse({'Error': 'Request payload does not contain project_name'})
+
+        if not project_description:
+            return JsonResponse({'Error': 'Request payload does not contain project_description'})
 
     except JSONDecodeError:
         return JsonResponse({'Error': 'Request payload does not contain required parameters or empty'})
@@ -58,7 +62,7 @@ def get_projects(request):
 
     try:
         mongo_connection = MongoConnection()
-        json_data = mongo_connection.get_items("projects", user_id)
+        json_data = mongo_connection.get_items("projects", {'user_id': user_id})
     except Exception as e:
         return JsonResponse({'Error': 'Error while getting project details from the database, ' + str(e)})
 
