@@ -14,6 +14,10 @@
                     <b-card bg-variant="warning" text-variant="white" header="Pending Job Count" class="text-center">
                         <b-card-text style="font-size:35px;">{{pendingJobCount}}</b-card-text>
                     </b-card>
+
+                    <b-card bg-variant="danger" text-variant="white" header="Failed Job Count" class="text-center">
+                        <b-card-text style="font-size:35px;">{{failedJobCount}}</b-card-text>
+                    </b-card>
                 </b-card-group>
             </b-col>
         </b-row>
@@ -27,7 +31,7 @@
         </b-row>
         <b-row>
             <b-col cols="12" class="mt-3">
-                <b-table striped hover :items="jobItems"></b-table>
+                <b-table striped hover :bordered="bordered" :borderless="borderless" :head-variant="headVariant" :items="jobItems"></b-table>
             </b-col>
         </b-row>
     </b-container>
@@ -40,10 +44,14 @@
         name: 'DashboardPage',
         data() {
             return {
+                borderless: false,
+                headVariant: 'dark',
+                bordered: true,
                 jobItems: [],
                 projectCount: 0,
                 completedJobCount: 0,
                 pendingJobCount: 0,
+                failedJobCount: 0,
                 projects: [],
             }
         },created() {
@@ -59,24 +67,24 @@
             this.getCrawledJobData();
         }, methods: {
             getCrawledJobData: function () {
-                this.$http.post('http://localhost:8000/api/project/jobs',
+                this.$http.post('http://localhost:8000/api/jobs',
                     JSON.stringify({'user_id': this.$USER_ID}),
                     {headers: {'Content-Type': 'application/x-www-form-urlencoded'}})
                     .then(response => {
                         var job_items = [];
                         var completedJobCount = 0;
                         var pendingJobCount = 0;
+                        var failedJobCount = 0;
                         response.data.data.forEach(function(obj) {
-                            var taskId = obj.task_id;
-                            if (taskId === undefined || taskId == null || taskId === '') {
-                                taskId = "STILL_PROCESSING";
-                            }
-                            job_items.push({project_name: obj.project_name, job_name:obj.job_name, job_id: taskId,
+
+                            job_items.push({project_name: obj.project_name, job_name:obj.job_name, job_id: obj.unique_id,
                                 crawler_type: obj.crawler_name, status: obj.status});
                             if (obj.status === "COMPLETED") {
                                 completedJobCount += 1;
                             } else if (obj.status === "PENDING" || obj.status === "RUNNING") {
                                 pendingJobCount += 1;
+                            } else if (obj.status === "FAILED") {
+                                failedJobCount += 1;
                             }
                         });
 
@@ -87,6 +95,7 @@
 
                         this.completedJobCount = completedJobCount;
                         this.pendingJobCount = pendingJobCount;
+                        this.failedJobCount = failedJobCount;
                         this.jobItems = job_items;
                     })
                     .catch(e => {

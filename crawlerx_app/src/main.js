@@ -14,6 +14,7 @@ import 'bootstrap/dist/css/bootstrap.css'
 import 'bootstrap-vue/dist/bootstrap-vue.css'
 import axios from "axios";
 import VueSwal from 'vue-swal'
+import VueClipboard from 'vue-clipboard2'
 
 Vue.use(VueMaterial);
 Vue.component('sidebar-menu', SidebarMenu);
@@ -22,6 +23,7 @@ Vue.use(BootstrapVue);
 // Optionally install the BootstrapVue icon components plugin
 Vue.use(IconsPlugin);
 Vue.use(VueSwal);
+Vue.use(VueClipboard)
 
 Vue.prototype.$http = axios;
 
