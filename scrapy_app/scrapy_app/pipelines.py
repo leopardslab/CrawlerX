@@ -54,15 +54,15 @@ class ScrapyAppPipeline:
 
             # add data into the elastic search
             try:
-                element_id = item['unique_id'] + '-' + item['task_id']
-                index = item['user_id'] + '-' + element_id
+                element_id = item['unique_id'].lower() + '-' + item['task_id'].lower()
+                index = item['user_id'].lower()
                 index_exists = self.es.indices.exists(index=index)
 
                 if not index_exists:
                     self.es.indices.create(index=index)
                 item_body = json.dumps(item, default=lambda o: o.__dict__, sort_keys=True, indent=4)
                 self.es.index(index=index, id=element_id, body=item_body)
-
+                print("Crawled data successfully indexed in the ElasticSearch")
                 logger.info("Crawled data successfully indexed in the ElasticSearch")
             except Exception as e:
                 logger.debug("Error while inserting data into the ElasticSearch" + str(e))

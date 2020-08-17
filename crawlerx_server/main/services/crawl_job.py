@@ -7,7 +7,6 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from main.clients.mongo_connection import MongoConnection
 import json
-from bson import json_util
 
 from main.rabbitmq_sender import publish_data_to_broker
 
@@ -83,3 +82,55 @@ def crawl_new_job(request):
                 return JsonResponse({'status': "500 BAD", 'Exception': 'Can not publish data to the broker, ' + str(e)})
 
         return JsonResponse({'status': "SUCCESS", 'job_ids': publish_url_ids})
+
+
+@csrf_exempt
+@require_http_methods(['POST'])  # only post
+def get_crawl_data(request):
+    # take urls comes from client.
+    try:
+        json_data = json.loads(request.body)
+        user_id = json_data['user_id']
+        task_id = json_data['task_id']
+    except JSONDecodeError as e:
+        return JsonResponse({'Error': 'Missing URLs in the request payload or empty, ' + str(e)})
+
+    if not user_id:
+        return JsonResponse({'Error': 'Missing user id key in the request payload'})
+
+    if not task_id:
+        return JsonResponse({'Error': 'Missing task id key in the request payload'})
+
+    try:
+        mongo_connection = MongoConnection()
+        json_data = mongo_connection.get_items("crawled_data", {'user_id': user_id, 'task_id': task_id})
+    except Exception as e:
+        return JsonResponse({'Error': 'Error while getting project details from the database, ' + str(e)})
+
+    return JsonResponse({'status': "SUCCESS", 'data': json_data})
+
+@csrf_exempt
+@require_http_methods(['POST'])  # only post
+def get_job_data(request):
+    # take urls comes from client.
+    try:
+        json_data = json.loads(request.body)
+        user_id = json_data['user_id']
+        unique_id = json_data['unique_id']
+    except JSONDecodeError as e:
+        return JsonResponse({'Error': 'Missing URLs in the request payload or empty, ' + str(e)})
+
+    if not user_id:
+        return JsonResponse({'Error': 'Missing user id key in the request payload'})
+
+    if not unique_id:
+        return JsonResponse({'Error': 'Missing unique id key in the request payload'})
+
+    try:
+        mongo_connection = MongoConnection()
+        json_data = mongo_connection.get_items("jobs", {'user_id': user_id, 'unique_id': unique_id})
+    except Exception as e:
+        return JsonResponse({'Error': 'Error while getting project details from the database, ' + str(e)})
+
+    return JsonResponse({'status': "SUCCESS", 'data': json_data})
+

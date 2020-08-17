@@ -21,7 +21,32 @@ def get_jobs(request):
     # take urls comes from client.
     try:
         mongo_connection = MongoConnection()
-        json_data = mongo_connection.get_items("jobs", user_id)
+        json_data = mongo_connection.get_items("jobs", {'user_id': user_id})
+    except Exception as e:
+        return JsonResponse({'Error': 'Error while getting job details from the database, ' + str(e)})
+
+    return JsonResponse({'status': "SUCCESS", 'data': json_data})
+
+@csrf_exempt
+@require_http_methods(['POST'])  # only get and post
+def get_jobs_by_project(request):
+    try:
+        json_data = json.loads(request.body)
+        user_id = json_data['user_id']
+        project_name = json_data['project_name']
+    except JSONDecodeError as e:
+        return JsonResponse({'Error': 'Missing user_id in the request payload or empty, ' + str(e)})
+
+    if not user_id:
+        return JsonResponse({'Error': 'Request payload does not contain user_id'})
+
+    if not project_name:
+        return JsonResponse({'Error': 'Request payload does not contain project_name'})
+
+    # take urls comes from client.
+    try:
+        mongo_connection = MongoConnection()
+        json_data = mongo_connection.get_items("jobs", {'user_id': user_id, 'project_name': project_name})
     except Exception as e:
         return JsonResponse({'Error': 'Error while getting job details from the database, ' + str(e)})
 

@@ -21,9 +21,9 @@ class MongoConnection:
         self.db[collection_name].update(query, data_item, True)
         logging.info("Post added to MongoDB")
 
-    def get_items(self, collection_name, user_id):
+    def get_items(self, collection_name, query):
         # retrieve data from database
-        cursor = self.db[collection_name].find({'user_id': user_id})
+        cursor = self.db[collection_name].find(query)
         json_docs = []
         for doc in cursor:
             json_doc = json.dumps(doc, default=json_util.default)
