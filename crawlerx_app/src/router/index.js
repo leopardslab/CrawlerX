@@ -6,6 +6,9 @@ import Login from "../views/Login"
 import SignUp from "../views/SignUp"
 import firebase from 'firebase'
 import Projects from "../components/Contents/Projects";
+import Jobs from "../components/Contents/Jobs";
+import JobData from "../components/Contents/JobData";
+import ELKAnalysis from "../components/Contents/ELKAnalysis";
 
 Vue.use(Router);
 
@@ -35,6 +38,24 @@ const router = new Router({
                     // when /user/:id/posts is matched
                     path: 'projects',
                     component: Projects
+                },
+                {
+                    // UserPosts will be rendered inside User's <router-view>
+                    // when /user/:id/posts is matched
+                    path: 'jobs',
+                    component: Jobs
+                },
+                {
+                    // UserPosts will be rendered inside User's <router-view>
+                    // when /user/:id/posts is matched
+                    path: 'job/:jobId',
+                    component: JobData
+                },
+                {
+                    // UserPosts will be rendered inside User's <router-view>
+                    // when /user/:id/posts is matched
+                    path: 'analysis',
+                    component: ELKAnalysis
                 }
             ]
         },

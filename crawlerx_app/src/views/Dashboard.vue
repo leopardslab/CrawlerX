@@ -41,6 +41,18 @@
                             required
                     ></b-form-input>
                 </b-form-group>
+                <b-form-group
+                        label="Project Description:"
+                        label-for="description-input"
+                >
+                    <b-form-textarea
+                            id="description"
+                            v-model="projectForm.description"
+                            placeholder="About the project..."
+                            rows="3"
+                            max-rows="6"
+                    ></b-form-textarea>
+                </b-form-group>
             </b-form>
         </b-modal>
 
@@ -67,7 +79,6 @@
                     <b-form-select v-model="jobForm.projectName" :options="projectOptions" />
                 </b-form-group>
                 <b-form-group
-                        :state="nameState"
                         label="Crawling Type:"
                         label-for="crawl-type-input"
                 >
@@ -130,7 +141,9 @@
                 });
 
                 this.projectOptions = currentProjectData;
-                this.jobForm.projectName = this.projectOptions[currentProjectData.length - 1]
+                if (this.projectOptions.length !== 0) {
+                    this.jobForm.projectName = this.projectOptions[currentProjectData.length - 1]
+                }
             });
         },
         computed: {
@@ -164,7 +177,8 @@
                     urlValue: []
                 },
                 projectForm: {
-                    projectName: ''
+                    projectName: '',
+                    description: ''
                 },
                 user_id: '',
                 menu: [
@@ -189,7 +203,7 @@
                         icon: 'fa fa-cogs'
                     },
                     {
-                        href: '/jobs',
+                        href: '/dashboard/jobs',
                         title: 'Jobs',
                         icon: 'fa fa-bell'
                     },
@@ -202,7 +216,7 @@
                         hiddenOnCollapse: true
                     },
                     {
-                        href: '/analysis',
+                        href: '/dashboard/analysis',
                         title: 'ELK Analysis',
                         icon: 'fa fa-bell'
                     }
@@ -218,7 +232,7 @@
         mounted() {
             this.onResize();
             window.addEventListener('resize', this.onResize);
-            this.getCrawledJobData();
+            this.getProjects();
         },
         methods: {
             logout: function () {
@@ -243,6 +257,7 @@
             },
             resetProjectCreateModal() {
                 this.projectForm.projectName = '';
+                this.projectForm.description = '';
             },
             handleProjectCreateOk(bvModalEvt) {
                 // Prevent modal from closing
@@ -257,7 +272,8 @@
                 }
 
                 this.$http.post('http://localhost:8000/api/project/create',
-                    JSON.stringify({'user_id': this.$USER_ID, 'project_name': this.projectForm.projectName }),
+                    JSON.stringify({'user_id': this.$USER_ID, 'project_name': this.projectForm.projectName,
+                        'project_description': this.projectForm.description }),
                     { headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'Token': this.$TOKEN_ID }})
                 .then(response => {
                     this.$bvToast.toast(response.data['message'], {
@@ -291,6 +307,7 @@
             },
             resetJobCreateModal() {
                 this.jobForm.jobName = '';
+                this.jobForm.urlValue = [];
             },
             handleJobCreateOk(bvModalEvt) {
                 // Prevent modal from closing
@@ -334,6 +351,27 @@
                 this.$nextTick(() => {
                     this.$bvModal.hide('modal-new-job')
                 })
+            },
+            getProjects() {
+                if (this.projectOptions.length === 0) {
+                    this.$http.post('http://localhost:8000/api/projects',
+                        JSON.stringify({'user_id': this.$USER_ID}),
+                        {headers: {'Content-Type': 'application/x-www-form-urlencoded'}})
+                        .then(response => {
+                            var projects = [];
+                            response.data.data.forEach(function(obj) {
+                                projects.push(obj.project_name)
+                            });
+                            this.projects = projects;
+                            this.projectOptions = projects;
+                            if (this.projectOptions.length !== 0) {
+                                this.jobForm.projectName = this.projectOptions[projects.length - 1]
+                            }
+                        })
+                        .catch(e => {
+                            alert(e.getError().toString())
+                        });
+                }
             },
             emitGlobalClickEventWhenProjectCreated() {
                 EventBus.$emit('project_created', 'data');
