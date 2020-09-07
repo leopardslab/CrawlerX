@@ -23,17 +23,13 @@ def project_create(request):
         if not project_name:
             return JsonResponse({'Error': 'Request payload does not contain project_name'})
 
-        if not project_description:
-            return JsonResponse({'Error': 'Request payload does not contain project_description'})
-
     except JSONDecodeError:
         return JsonResponse({'Error': 'Request payload does not contain required parameters or empty'})
 
     # user Authorization
     token_header = request.headers.get('Token')
-    print(token_header)
     auth = FirebaseAuth(token_header, user_id)
-    print(auth)
+
     if not auth:
         return JsonResponse({'Error': 'User authentication failed. Please try again with a valid user login'})
 

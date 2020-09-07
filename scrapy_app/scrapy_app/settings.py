@@ -68,6 +68,8 @@ ITEM_PIPELINES = {
    'scrapy_app.pipelines.ScrapyAppPipeline': 200,
 }
 
+HTTPERROR_ALLOWED_CODES = [404,403]
+
 MONGO_URI = 'mongodb://localhost:27017'
 MONGO_DATABASE = 'crawlerx_db'
 

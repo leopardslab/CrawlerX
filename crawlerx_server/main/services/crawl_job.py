@@ -35,6 +35,8 @@ def crawl_new_job(request):
             project_name = json_data['project_name']
             user_id = json_data['user_id']
             crawler_name = json_data['crawler_name']
+            schedule_date = json_data['schedule_date']
+            schedule_time = json_data['schedule_time']
         except JSONDecodeError as e:
             return JsonResponse({'Error': 'Missing URLs in the request payload or empty, ' + str(e)})
 
@@ -62,7 +64,8 @@ def crawl_new_job(request):
             publish_data = u'{ "unique_id": "' + unique_id + '", "job_name": "' + job_name \
                            + '", "url": "' + url + '", "project_name": "' \
                            + project_name + '", "user_id": "' + user_id + '", "crawler_name": "' + crawler_name \
-                           + '", "task_id":"", "status": "PENDING" }'
+                           + '", "task_id":"", "schedule_date": "' + schedule_date \
+                           + '", "schedule_time": "' + schedule_time + '", "status": "PENDING" }'
 
             publish_data = json.loads(publish_data)
             try:
