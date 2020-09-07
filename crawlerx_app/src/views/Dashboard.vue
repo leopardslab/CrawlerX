@@ -105,6 +105,19 @@
                         Press <kbd>Backspace</kbd> to remove the last url entered
                     </b-form-text>
                 </b-form-group>
+                <b-form-group
+                        label="Load URLs from a File:"
+                        label-for="file-input"
+                >
+                    <input type="file" @change="loadTextFromFile">
+                </b-form-group>
+                <b-form-group
+                        label="Schedule the Job:"
+                        label-for="schedule-input"
+                >
+                    <b-form-datepicker id="example-datepicker" v-model="jobForm.scheduleDate" class="mb-2"></b-form-datepicker>
+                    <b-form-timepicker v-model="jobForm.scheduleTime" show-seconds locale="en"></b-form-timepicker>
+                </b-form-group>
             </form>
         </b-modal>
         <b-toast id="my-toast" variant="warning" solid>
@@ -174,7 +187,9 @@
                     jobName: '',
                     crawler: 'crawlerx',
                     projectName: null,
-                    urlValue: []
+                    urlValue: [],
+                    scheduleDate: '',
+                    scheduleTime: ''
                 },
                 projectForm: {
                     projectName: '',
@@ -226,7 +241,7 @@
                 isOnMobile: false,
                 projectOptions: [],
                 selectedProject: null,
-                crawlerOptions: ["crawlerx"]
+                crawlerOptions: ["crawlerx", "stackoverflow", "wikipedia"]
             }
         },
         mounted() {
@@ -323,8 +338,9 @@
 
                 this.$http.post('http://localhost:8000/api/crawl/new',
                     JSON.stringify({'user_id': this.$USER_ID, 'project_name': this.jobForm.projectName,
-                        'urls':this.jobForm.urlValue, 'crawler_name':this.jobForm.crawler,
-                        'job_name': this.jobForm.jobName }),
+                        'urls': this.jobForm.urlValue, 'crawler_name': this.jobForm.crawler,
+                        'job_name': this.jobForm.jobName, 'schedule_date': this.jobForm.scheduleDate,
+                        'schedule_time': this.jobForm.scheduleTime }),
                     { headers: { 'Content-Type': 'application/x-www-form-urlencoded' }})
                     .then(response => {
                         this.$bvToast.toast(response.data['message'], {
@@ -378,6 +394,27 @@
             },
             emitGlobalClickEventWhenJobCreated() {
                 EventBus.$emit('job_created', 'data');
+            },
+            loadTextFromFile(ev) {
+                const file = ev.target.files[0];
+                const reader = new FileReader();
+                reader.readAsText(file);
+                reader.onload =  evt => {
+                    var read = evt.target.result;
+                    var links = read.split("\n");
+                    let regex = new RegExp(/^(http|https):\/\/[^ "]+$/);
+                    var loadedUrls = this.jobForm.urlValue;
+                    links.forEach(function(url) {
+                        url = url.trim();
+                        var isValidUrl = regex.test(url);
+                        if (isValidUrl) {
+                            loadedUrls.push(url);
+                        }
+
+                    });
+
+                    this.jobForm.urlValue = loadedUrls;
+                }
             }
         }
     }
