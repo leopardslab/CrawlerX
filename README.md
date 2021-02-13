@@ -15,6 +15,7 @@ CrawlerX includes the following runtimes to do the crawling jobs for you.
 - **RabbitMQ Listeners** - consumes messages from the RabbitMQ queue
 - **Scrapy Server** - for extracting the data you need from websites
 - **MongoDB Server** - for store crawled data
+- **ElasticSearch**- for job/query seaching mechanisams
 
 ### Setup
 
