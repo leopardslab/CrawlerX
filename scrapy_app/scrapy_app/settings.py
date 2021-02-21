@@ -70,7 +70,7 @@ ITEM_PIPELINES = {
 
 HTTPERROR_ALLOWED_CODES = [404,403]
 
-MONGO_URI = 'mongodb://localhost:27017'
+MONGO_URI = 'mongodb://mongodb:27017'
 MONGO_DATABASE = 'crawlerx_db'
 
 # ELASTIC_SEARCH_URI = "http://localhost"

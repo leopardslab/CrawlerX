@@ -1,6 +1,6 @@
 from kombu import Connection, Exchange, Queue, Producer
 
-rabbit_url = "amqp://guest:guest@localhost:5672/"
+rabbit_url = "amqp://guest:guest@rabbitmq:5672/"
 
 
 def publish_data_to_broker(data):
