@@ -17,9 +17,21 @@ CrawlerX includes the following runtimes to do the crawling jobs for you.
 - **MongoDB Server** - for store crawled data
 - **ElasticSearch**- for job/query seaching mechanisams
 
-### Setup
+### Setup on the Container based Environments
 
-Please follow the below steps in order to set it up CrawlerX in your VM based environment.
+#### Docker Composer
+
+Please follow the below steps to setup CrawlerX on the container environment.
+
+```sh
+docker-compose up --build
+```
+
+Open http://localhost:8080 to view the CrawlerX web UI in the browser.
+
+### Setup on the VM based Environment
+
+#### Please follow the below steps in order to set it up CrawlerX in your VM based environment.
 
 First you need to create a `.env` file in `crawlerx_app` folder following the template provided in the file `crawlerx_app/src/env.example` with your web app's firebase configuration<br/>
 
@@ -75,10 +87,6 @@ Start ElasticSearch
 $ docker pull elasticsearch:7.8.1
 $ docker run -p 9200:9200 -p 9300:9300 -e "discovery.type=single-node" elasticsearch:7.8.1
 ```
-
-#### Docker + Kubernetes
-
-Above server configurations need to be wrap with Docker images and write k8s deployment files.
 
 ### Todos
 
