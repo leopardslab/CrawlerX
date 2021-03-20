@@ -5,7 +5,7 @@ from bson import json_util
 
 
 class MongoConnection:
-    mongo_uri = 'mongodb://localhost:27017'
+    mongo_uri = 'mongodb://mongodb:27017'
     mongo_db = 'crawlerx_db'
 
     def __init__(self):

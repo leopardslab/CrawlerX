@@ -12,7 +12,7 @@ class ScrapyAppPipeline:
     def __init__(self, mongo_uri, mongo_db):
         self.mongo_uri = mongo_uri
         self.mongo_db = mongo_db
-        self.es = Elasticsearch(HOST="http://localhost", PORT=9200)
+        self.es = Elasticsearch(HOST="http://elasticsearch", PORT=9200)
 
     @classmethod
     def from_crawler(cls, crawler):

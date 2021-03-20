@@ -1,0 +1,66 @@
+version: "3.7"
+services:
+  django:
+    build:
+        context: ./crawlerx_server
+        dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+
+  scrapyd:
+    build:
+        context: ./scrapy_app
+        dockerfile: Dockerfile
+    expose:
+      - 6800   
+
+  rabbitmq:
+    image: "rabbitmq:3-management"
+    hostname: "rabbit"
+    restart: on-failure    
+    ports:
+      - "15672:15672"
+    expose:
+      - 5672
+    labels:
+      NAME: "rabbitmq"
+    volumes:
+      - ./rabbitmq-isolated.conf:/etc/rabbitmq/rabbitmq.config
+    healthcheck:
+        test: ["CMD", "curl", "-f", "http://localhost:15672"]
+        interval: 30s
+        timeout: 10s
+        retries: 5  
+
+  rabbitmq_consumer:
+    build:
+        context: ./scrapy_app/rabbitmq_broker
+        dockerfile: Dockerfile
+    restart: on-failure    
+    depends_on:
+      - rabbitmq
+    links: 
+        - rabbitmq  
+
+  mongodb:
+    image: mongo
+    restart: on-failure    
+    ports:
+      - 27017:27017  
+
+  elasticsearch:
+    image: elasticsearch:7.8.1
+    environment:
+      - discovery.type=single-node
+    ports:
+      - 9200:9200
+      - 9300:9300    
+
+  vue:
+    build:
+      context: ./crawlerx_app
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    depends_on:
+      - django     

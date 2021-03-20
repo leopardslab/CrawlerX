@@ -11,10 +11,10 @@ from apscheduler.schedulers.background import BackgroundScheduler
 from mongo_connection import MongoConnection
 
 # connect scrapyd service
-scrapyd = ScrapydAPI('http://localhost:6800')
+scrapyd = ScrapydAPI('http://scrapyd:6800')
 
 # connect to the rabbitMQ broker
-rabbit_url = "amqp://guest:guest@localhost:5672/"
+rabbit_url = "amqp://guest:guest@rabbitmq:5672/"
 
 # Creating an object for logger
 logging.basicConfig(level=logging.INFO)
