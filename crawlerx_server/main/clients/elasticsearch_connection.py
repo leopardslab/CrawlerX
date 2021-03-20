@@ -3,7 +3,7 @@ from elasticsearch import Elasticsearch
 
 
 class ELKConnection:
-    elk_uri = 'http://localhost'
+    elk_uri = 'http://elasticsearch'
     elk_port = 9200
 
     def __init__(self):
