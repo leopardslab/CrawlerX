@@ -5,6 +5,11 @@
 npm install
 ```
 
+## Configure Firebase Authentication
+```
+vi .env
+```
+
 ### Compiles and hot-reloads for development
 ```
 npm run serve

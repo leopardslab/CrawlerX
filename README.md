@@ -17,6 +17,19 @@ CrawlerX includes the following runtimes to do the crawling jobs for you.
 - **MongoDB Server** - for store crawled data
 - **ElasticSearch**- for job/query seaching mechanisams
 
+### Prerequisites
+First you need to edit the `.env` file in `crawlerx_app` root directory with your web app's firebase configuration details.
+```
+VUE_APP_FIREBASE_API_KEY = "<your-api-key>"
+VUE_APP_FIREBASE_AUTH_DOMAIN = "<your-auth-domain>"
+VUE_APP_FIREBASE_DB_DOMAIN= "<your-db-domain>"
+VUE_APP_FIREBASE_PROJECT_ID = "<your-project-id>"
+VUE_APP_FIREBASE_STORAGE_BUCKET = "<your-storage-bucket>"
+VUE_APP_FIREBASE_MESSAGING_SENDER_ID= "<your-messaging-sender-id>"
+VUE_APP_FIREBASE_APP_ID = "<your-app-id>"
+VUE_APP_FIREBASE_MEASURMENT_ID = "<your-measurementId>"
+```
+
 ### Setup on the Container based Environments
 
 #### Docker Composer
@@ -32,8 +45,6 @@ Open http://localhost:8080 to view the CrawlerX web UI in the browser.
 ### Setup on the VM based Environment
 
 #### Please follow the below steps in order to set it up CrawlerX in your VM based environment.
-
-First you need to create a `.env` file in `crawlerx_app` folder following the template provided in the file `crawlerx_app/src/env.example` with your web app's firebase configuration<br/>
 
 Start the frontend :
 
