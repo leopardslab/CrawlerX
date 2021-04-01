@@ -241,7 +241,7 @@
                 isOnMobile: false,
                 projectOptions: [],
                 selectedProject: null,
-                crawlerOptions: ["crawlerx", "stackoverflow", "wikipedia"]
+                crawlerOptions: ["crawlerx", "stackoverflow", "wikipedia", "reddit"]
             }
         },
         mounted() {
