@@ -1,30 +1,16 @@
 import os
 from scrapy.spiders import CrawlSpider
-from scrapy.item import Item, Field
 from scrapy_app.spider_common import *
 
 
-class RedditItem(Item):
-    name = Field()
+class GithubTrendingSpider(CrawlSpider):
+    name = "github_trending"
 
-
-class RedditSpider(CrawlSpider):
-    name = "reddit"
-    auto_join_text = False
-    keywords = {'__use', '__list'}
     list_css_rules = {
-        '.link': {
-            'title': '.title a::text',
-            'domain': '.domain a::text',
-            'author': '.author::text',
-            'comment_count': '.comments::text',
-            'score': '.score::text',
+        '.repo-list-item': {
+            'repo_name': '.repo-list-name a::attr(href)',
+            'repo_meta': '.repo-list-meta::text',
         }
-    }
-    content_css_rules = {
-        'text': '#Cnt-Main-Article-QQ p *::text',
-        'images': '#Cnt-Main-Article-QQ img::attr(src)',
-        'images-desc': '#Cnt-Main-Article-QQ div p+ p::text',
     }
 
     def __init__(self, *args, **kwargs):
@@ -34,7 +20,7 @@ class RedditSpider(CrawlSpider):
         self.allowed_domains = [self.domain]
         self.settings = kwargs.get('settings')
 
-        super(RedditSpider, self).__init__(*args, **kwargs)
+        super(GithubTrendingSpider, self).__init__(*args, **kwargs)
 
     def parse(self, response):
         parsed_item = dict()
