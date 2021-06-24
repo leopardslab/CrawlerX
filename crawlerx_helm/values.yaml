@@ -2,78 +2,61 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
-replicaCount: 1
+crawlerx:
+  # user Docker registry authentication parameters
+  subscription:
+    username: ""
+    password: ""
+  deployment:
+    webApp:
+      # dockerRegistry: ""
+      imageName: "scorelabs/crawlerx-app"
+      imageTag: "1.0.0"
+      # imagePullSecrets: secret
+      # Number of deployment replicas
+      replicas: 1
+      strategy:
+        rollingUpdate:
+          # The maximum number of pods that can be scheduled above the desired number of pods.
+          maxSurge: 1
+          # The maximum number of pods that can be unavailable during the update.
+          maxUnavailable: 0
+      # Indicates whether the container is running.
+      livenessProbe:
+        # Number of seconds after the container has started before liveness probes are initiated.
+        initialDelaySeconds: 35
+        # How often (in seconds) to perform the probe.
+        periodSeconds: 10
+      # Indicates whether the container is ready to service requests.
+      readinessProbe:
+        # Number of seconds after the container has started before readiness probes are initiated.
+        initialDelaySeconds: 35
+        # How often (in seconds) to perform the probe.
+        periodSeconds: 10
+      # These are the minimum resource recommendations      
+      resources:
+        requests:
+          # The minimum amount of memory that should be allocated for a Pod
+          memory: "512Mi"
+          # The minimum amount of CPU that should be allocated for a Pod
+          cpu: "400m"
+        limits:
+          # The maximum amount of memory that should be allocated for a Pod
+          memory: "1Gi"
+          # The maximum amount of CPU that should be allocated for a Pod
+          cpu: "1000m"
+      # Environment variables for the deployment.
+      envs:
+      #  ENV_NAME: ENV_VALUE
 
-image:
-  repository: nginx
-  pullPolicy: IfNotPresent
-  # Overrides the image tag whose default is the chart appVersion.
-  tag: ""
-
-imagePullSecrets: []
-nameOverride: ""
-fullnameOverride: ""
-
-serviceAccount:
-  # Specifies whether a service account should be created
-  create: true
-  # Annotations to add to the service account
-  annotations: {}
-  # The name of the service account to use.
-  # If not set and create is true, a name is generated using the fullname template
-  name: ""
-
-podAnnotations: {}
-
-podSecurityContext: {}
-  # fsGroup: 2000
-
-securityContext: {}
-  # capabilities:
-  #   drop:
-  #   - ALL
-  # readOnlyRootFilesystem: true
-  # runAsNonRoot: true
-  # runAsUser: 1000
-
-service:
-  type: ClusterIP
-  port: 80
-
-ingress:
-  enabled: false
-  annotations: {}
-    # kubernetes.io/ingress.class: nginx
-    # kubernetes.io/tls-acme: "true"
-  hosts:
-    - host: chart-example.local
-      paths: []
-  tls: []
-  #  - secretName: chart-example-tls
-  #    hosts:
-  #      - chart-example.local
-
-resources: {}
-  # We usually recommend not to specify default resources and to leave this as a conscious
-  # choice for the user. This also increases chances charts run on environments with little
-  # resources, such as Minikube. If you do want to specify resources, uncomment the following
-  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
-  # limits:
-  #   cpu: 100m
-  #   memory: 128Mi
-  # requests:
-  #   cpu: 100m
-  #   memory: 128Mi
-
-autoscaling:
-  enabled: false
-  minReplicas: 1
-  maxReplicas: 100
-  targetCPUUtilizationPercentage: 80
-  # targetMemoryUtilizationPercentage: 80
-
-nodeSelector: {}
-
-tolerations: []
-
-affinity: {}
+  # Ingress level values for the CrawlerX deployments
+  ingress:
+    webApp:
+      services:
+        # Hostname for web-app services endpoint.
+        hostname: "app.crawlerx.com"
+        # Nginx annotations
+        annotations:
+          kubernetes.io/ingress.class: "nginx"
+          nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
+        servicePort: 8080  
