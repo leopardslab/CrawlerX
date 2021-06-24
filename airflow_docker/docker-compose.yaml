@@ -16,7 +16,7 @@
 # under the License.
 #
 
-# Basic Airflow cluster configuration for CeleryExecutor with Redis and PostgreSQL.
+# Basic Airflow cluster configuration for CeleryExecutor with RabbitMQ and PostgreSQL.
 #
 # WARNING: This configuration is for local development. Do not use it in a production deployment.
 #
@@ -45,7 +45,7 @@ x-airflow-common:
     AIRFLOW__CORE__EXECUTOR: CeleryExecutor
     AIRFLOW__CORE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@postgres/airflow
     AIRFLOW__CELERY__RESULT_BACKEND: db+postgresql://airflow:airflow@postgres/airflow
-    AIRFLOW__CELERY__BROKER_URL: redis://:@redis:6379/0
+    AIRFLOW__CELERY__BROKER_URL: amqp://guest:guest@rabbitmq:5672/
     AIRFLOW__CORE__FERNET_KEY: ''
     AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: 'true'
     AIRFLOW__CORE__LOAD_EXAMPLES: 'false'
@@ -56,10 +56,8 @@ x-airflow-common:
     - ./plugins:/opt/airflow/plugins
   user: "${AIRFLOW_UID:-50000}:${AIRFLOW_GID:-50000}"
   depends_on:
-    redis:
-      condition: service_healthy
-    postgres:
-      condition: service_healthy
+    - rabbitmq
+    - postgres
 
 services:
   postgres:
@@ -76,16 +74,21 @@ services:
       retries: 5
     restart: always
 
-  redis:
-    image: redis:latest
+  rabbitmq:
+    image: "rabbitmq:3-management"
+    hostname: "rabbit"
     ports:
-      - 6379:6379
+      - 15672:15672
+      - 5672:5672
+    labels:
+      NAME: "rabbitmq"
+    volumes:
+      - ./rabbitmq-isolated.conf:/etc/rabbitmq/rabbitmq.config  
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 5s
-      timeout: 30s
-      retries: 50
-    restart: always
+      test: ["CMD", "curl", "-f", "http://localhost:15672"]
+      interval: 20s
+      retries: 5  
+    restart: always   
 
   airflow-webserver:
     <<: *airflow-common
