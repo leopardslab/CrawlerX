@@ -1,0 +1,21 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: {{ include "crawlerx_helm.fullname" . }}-web-app-ingress
+  namespace : {{ .Release.Namespace }}
+{{- if .Values.crawlerx.ingress.webApp.services.annotations }}
+  annotations:
+{{ toYaml .Values.crawlerx.ingress.webApp.services.annotations | indent 4 }}
+{{- end }}
+spec:
+  tls:
+    - hosts:
+        - {{ .Values.crawlerx.ingress.webApp.services.hostname | quote }}
+  rules:
+    - host: {{ .Values.crawlerx.ingress.webApp.services.hostname | quote }}
+      http:
+        paths:
+          - path: /
+            backend:
+              serviceName: {{ include "crawlerx_helm.fullname" . }}-web-app-service
+              servicePort: {{ .Values.crawlerx.ingress.webApp.service.servicePort }}

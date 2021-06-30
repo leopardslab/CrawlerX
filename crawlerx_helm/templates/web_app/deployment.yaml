@@ -1,0 +1,72 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "crawlerx_helm.fullname" . }}-web-app-deployment
+  namespace: {{ .Release.Namespace }}
+  labels:
+    chart: '{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}'
+spec:
+  replicas: {{ .Values.crawlerx.deployment.webApp.replicas }}
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: {{ .Values.crawlerx.deployment.webApp.strategy.rollingUpdate.maxSurge }}
+      maxSurge: {{ .Values.crawlerx.deployment.webApp.strategy.rollingUpdate.maxSurge }}
+  selector:
+    matchLabels:
+      app: {{ include "crawlerx_helm.fullname" . }}-web-app-selector
+      version: "current"
+  template:
+    metadata:
+      labels:
+        app: {{ include "crawlerx_helm.fullname" . }}-web-app-selector
+        version: "current"
+    spec:
+      containers:
+      - name: "crawlerx_web_appication"
+        {{- if .Values.crawlerx.deployment.webApp.dockerRegistry }}
+        image: "{{ .Values.crawlerx.deployment.webApp.dockerRegistry }}/{{ .Values.crawlerx.deployment.webApp.imageName }}:{{ .Values.crawlerx.deployment.webApp.imageTag }}"
+        {{- else }}
+        image: "{{ .Values.crawlerx.deployment.webApp.imageName }}:{{ .Values.crawlerx.deployment.webApp.imageTag }}"
+        {{ end }}
+        imagePullPolicy: Always
+        ports:
+        - containerPort: {{ .Values.crawlerx.ingress.webApp.service.servicePort }}
+        resources:
+          requests:
+            memory: {{ .Values.crawlerx.deployment.webApp.resources.requests.memory }}
+            cpu: {{ .Values.crawlerx.deployment.webApp.resources.requests.cpu }}
+          limits:
+            memory: {{ .Values.crawlerx.deployment.webApp.resources.limits.memory }}
+            cpu: {{ .Values.crawlerx.deployment.webApp.resources.limits.cpu }}
+        {{- if .Values.crawlerx.deployment.webApp.envs }}
+        env:
+          {{- range $key, $val := .Values.crawlerx.deployment.webApp.envs }}
+          - name: {{ $key }}
+            value: {{ $val | quote }}
+          {{- end }}
+        {{- end }}
+        {{- if .Values.image.livenessProbe }}
+        livenessProbe:
+          exec:
+            command:
+              - /bin/sh
+              - -c
+              - nc -z localhost 8080
+          initialDelaySeconds: {{ .Values.crawlerx.deployment.webApp.livenessProbe.initialDelaySeconds }}
+          periodSeconds: {{ .Values.crawlerx.deployment.webApp.livenessProbe.periodSeconds }}
+        readinessProbe:
+          exec:
+            command:
+              - /bin/sh
+              - -c
+              - nc -z localhost 8080
+          initialDelaySeconds: {{ .Values.crawlerx.deployment.webApp.readinessProbe.initialDelaySeconds }}
+          periodSeconds: {{ .Values.crawlerx.deployment.webApp.readinessProbe.periodSeconds }}
+        {{- if .Values.crawlerx.deployment.webApp.imagePullSecrets }}  
+        imagePullSecrets:
+          - name: {{ .Values.crawlerx.deployment.webApp.imagePullSecrets }}
+        {{- else if and (not (eq .Values.crawlerx.subscription.username "")) (not (eq .Values.crawlerx.subscription.password "")) }}
+        imagePullSecrets:
+          - name: crawlerx-deployment-secret
+        {{ end }}  

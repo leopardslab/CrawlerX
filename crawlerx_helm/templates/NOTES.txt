@@ -1,0 +1,2 @@
+Congratulations!
+CrawlerX distributed crawling web platform has been successfully installed in your environment.
