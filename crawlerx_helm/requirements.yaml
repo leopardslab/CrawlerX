@@ -1,0 +1,7 @@
+dependencies:
+  - name: mongodb
+    version: "10.21.2"
+    repository: "https://charts.bitnami.com/bitnami"
+  - name: rabbitmq
+    version: "8.16.3"
+    repository: "https://charts.bitnami.com/bitnami"   
