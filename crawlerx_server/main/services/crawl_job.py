@@ -139,6 +139,29 @@ def disable_schedule_job(request):
 
 @csrf_exempt
 @require_http_methods(['POST'])  # only post
+def delete_schedule_job(request):
+
+    if request.method == 'POST':
+        task_name = ""
+        try:
+            json_data = json.loads(request.body)
+            task_name = json_data['celery_task_name']
+            task = PeriodicTask.objects.get(name=task_name)
+
+            if not task:
+                return JsonResponse({'Error': 'Scheduled task_name: ' + task_name + ' is invalid or does not exist'})
+
+            task.delete()
+            return JsonResponse({'status': "SUCCESS",
+                                 'Exception': 'Successfully deleted the scheduled task task_name: ' + task_name})
+        except Exception as e:
+            return JsonResponse({'status': "400 BAD",
+                                 'Exception': 'Error occurred while deleting the scheduled task_name: '
+                                              + task_name + ". " + str(e)})
+
+
+@csrf_exempt
+@require_http_methods(['POST'])  # only post
 def crawl_new_job(request):
     # Post requests are for new crawling tasks
     if request.method == 'POST':
