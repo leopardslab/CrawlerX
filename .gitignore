@@ -134,3 +134,6 @@ dmypy.json
 
 #node modules
 **/node_modules
+
+#airflow logs
+airflow_docker/logs
