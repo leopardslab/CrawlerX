@@ -68,6 +68,51 @@ def schedule_job_with_interval(request):
                                       + str(e)})
 
 
+def schedule_job_with_cron_tab(request):
+    try:
+        user_id = request['user_id']
+        schedule_data = request['schedule_data']
+        minute = schedule_data['schedule_minute']
+        hour = schedule_data['schedule_hour']
+        day_of_week = schedule_data['day_of_week']
+        day_of_month = schedule_data['day_of_month']
+        month_of_year = schedule_data['month_of_year']
+
+        if not minute:
+            return JsonResponse({'status': "400 BAD",
+                                 'Error': 'Missing minute key in the request payload'})
+
+        if not hour:
+            return JsonResponse({'status': "400 BAD",
+                                 'Error': 'Missing hour key in the request payload'})
+
+        if not day_of_week:
+            return JsonResponse({'status': "400 BAD",
+                                 'Error': 'Missing day_of_week key in the request payload'})
+
+        if not day_of_month:
+            return JsonResponse({'status': "400 BAD",
+                                 'Error': 'Missing day_of_month key in the request payload'})
+
+        if not month_of_year:
+            return JsonResponse({'status': "400 BAD",
+                                 'Error': 'Missing month_of_year key in the request payload'})
+
+        del request['schedule_data']  # remove schedule meta data
+        schedule, created = CrontabSchedule.objects.get_or_create(minute=minute, hour=hour,
+                                                                  day_of_week=day_of_week,
+                                                                  day_of_month=day_of_month,
+                                                                  month_of_year=month_of_year)
+        scheduled_task = PeriodicTask.objects.create(crontab=schedule,
+                                                     name=user_id + "-schedule-task-" + str(time.time()),
+                                                     task='main.tasks.schedule_cron_job', kwargs=json.dumps(request))
+        return scheduled_task
+    except Exception as e:
+        return JsonResponse({'status': "400 BAD",
+                             'Error': 'Required fields schedule_minute, schedule_hour, day_of_week, day_of_month '
+                                      'and  month_of_year values not found or empty, ' + str(e)})
+
+
 @csrf_exempt
 @require_http_methods(['POST'])  # only post
 def crawl_new_job(request):
