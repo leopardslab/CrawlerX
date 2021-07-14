@@ -74,3 +74,5 @@ w3lib==1.22.0
 websockets==8.1
 zipp==3.1.0
 zope.interface==5.1.0
+django-celery-beat==2.1.0
+celery==5.0.2
