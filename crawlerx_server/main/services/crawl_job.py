@@ -30,6 +30,44 @@ def is_valid_url(url):
     return True
 
 
+def schedule_job_with_interval(request):
+    try:
+        user_id = request['user_id']
+        schedule_data = request['schedule_data']
+        occurrence = schedule_data['occurrence']
+        granularity = schedule_data['granularity']
+
+        if not occurrence:
+            return JsonResponse({'status': "400 BAD",
+                                 'Error': 'Missing occurrence key in the request payload'})
+
+        if not granularity:
+            return JsonResponse({'status': "400 BAD",
+                                 'Error': 'Missing granularity key in the request payload'})
+
+        if granularity == DAYS:
+            granularity_value = IntervalSchedule.DAYS
+        elif granularity == HOURS:
+            granularity_value = IntervalSchedule.HOURS
+        elif granularity == MINUTES:
+            granularity_value = IntervalSchedule.MINUTES
+        elif granularity == SECONDS:
+            granularity_value = IntervalSchedule.SECONDS
+        else:
+            return JsonResponse({'status': "400 BAD", 'Error': 'Granularity value is not valid'})
+
+        del request['schedule_data']  # remove schedule meta data
+        schedule, created = IntervalSchedule.objects.get_or_create(every=occurrence, period=granularity_value)
+        interval_task = PeriodicTask.objects.create(interval=schedule,
+                                                    name=user_id + "-interval-task-" + str(time.time()),
+                                                    task='main.tasks.schedule_cron_job', kwargs=json.dumps(request))
+        return interval_task
+    except Exception as e:
+        return JsonResponse({'status': "400 BAD",
+                             'Error': 'Required fields occurrence and granularity values not found or empty, '
+                                      + str(e)})
+
+
 @csrf_exempt
 @require_http_methods(['POST'])  # only post
 def crawl_new_job(request):
