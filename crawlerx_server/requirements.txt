@@ -75,4 +75,4 @@ websockets==8.1
 zipp==3.1.0
 zope.interface==5.1.0
 django-celery-beat==2.1.0
-celery==5.0.2
+django-environ==0.4.5

@@ -270,6 +270,7 @@ def get_crawl_data(request):
 
     return JsonResponse({'status': "SUCCESS", 'data': json_data})
 
+
 @csrf_exempt
 @require_http_methods(['POST'])  # only post
 def get_job_data(request):

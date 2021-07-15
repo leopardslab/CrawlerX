@@ -11,10 +11,14 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 """
 
 import os
+import environ
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
+# Initialise environment variables
+env = environ.Env()
+environ.Env.read_env()
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
@@ -27,12 +31,29 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
-CELERY_BROKER_URL = 'amqp://guest:guest@localhost:5672'
-CELERY_RESULT_BACKEND = 'amqp://guest:guest@localhost:5672'
+CELERY_BROKER_URL = 'amqp://' + env('CELERY_BROKER_USERNAME') + ':' + env('CELERY_BROKER_PASSWORD') + '@' \
+                    + env('CELERY_BROKER_HOSTNAME') + ':' + env('CELERY_BROKER_PORT')
+CELERY_RESULT_BACKEND = 'amqp://' + env('CELERY_BROKER_USERNAME') + ':' + env('CELERY_BROKER_PASSWORD') + '@' \
+                    + env('CELERY_BROKER_HOSTNAME') + ':' + env('CELERY_BROKER_PORT')
 CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
 
-# Application definition
+# MongoDB credentials
+MONGODB_USERNAME = env('MONGODB_USERNAME')
+MONGODB_PASSWORD = env('MONGODB_PASSWORD')
+MONGODB_HOSTNAME = env('MONGODB_HOSTNAME')
+MONGODB_PORT = env('MONGODB_PORT')
+MONGODB_DATABASE = env('MONGODB_DATABASE')
 
+# Firebase auth app secret
+FIREBASE_APP_KEY = env('FIREBASE_APP_KEY')
+
+# Elastic Search secrets
+ELASTIC_SEARCH_USERNAME = env('ELASTIC_SEARCH_USERNAME')
+ELASTIC_SEARCH_PASSWORD = env('ELASTIC_SEARCH_PASSWORD')
+ELASTIC_SEARCH_HOSTNAME = env('ELASTIC_SEARCH_HOSTNAME')
+ELASTIC_SEARCH_PORT = env('ELASTIC_SEARCH_PORT')
+
+# Application definition
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -67,7 +88,6 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'crawlerx_server.urls'
-CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
