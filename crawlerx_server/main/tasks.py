@@ -6,9 +6,10 @@ import json
 import requests
 
 # connect scrapy daemon service
+from crawlerx_server.settings import SCRAPY_API_HOSTNAME, SCRAPY_API_PORT
 from main.clients.mongo_connection import MongoConnection
 
-scrapy_daemon = ScrapydAPI('http://localhost:6800')
+scrapy_daemon = ScrapydAPI('http://' + SCRAPY_API_HOSTNAME + ':' + SCRAPY_API_PORT)
 
 # Creating an object for logger
 logging.basicConfig(level=logging.INFO)
