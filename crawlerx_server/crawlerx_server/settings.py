@@ -11,10 +11,14 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 """
 
 import os
+import environ
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
+# Initialise environment variables
+env = environ.Env()
+environ.Env.read_env()
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
@@ -27,9 +31,33 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
+CELERY_BROKER_URL = 'amqp://' + env('CELERY_BROKER_USERNAME') + ':' + env('CELERY_BROKER_PASSWORD') + '@' \
+                    + env('CELERY_BROKER_HOSTNAME') + ':' + env('CELERY_BROKER_PORT')
+CELERY_RESULT_BACKEND = 'amqp://' + env('CELERY_BROKER_USERNAME') + ':' + env('CELERY_BROKER_PASSWORD') + '@' \
+                    + env('CELERY_BROKER_HOSTNAME') + ':' + env('CELERY_BROKER_PORT')
+CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
+
+# MongoDB credentials
+MONGODB_USERNAME = env('MONGODB_USERNAME')
+MONGODB_PASSWORD = env('MONGODB_PASSWORD')
+MONGODB_HOSTNAME = env('MONGODB_HOSTNAME')
+MONGODB_PORT = env('MONGODB_PORT')
+MONGODB_DATABASE = env('MONGODB_DATABASE')
+
+# Firebase auth app secret
+FIREBASE_APP_KEY = env('FIREBASE_APP_KEY')
+
+# Elastic Search secrets
+ELASTIC_SEARCH_USERNAME = env('ELASTIC_SEARCH_USERNAME')
+ELASTIC_SEARCH_PASSWORD = env('ELASTIC_SEARCH_PASSWORD')
+ELASTIC_SEARCH_HOSTNAME = env('ELASTIC_SEARCH_HOSTNAME')
+ELASTIC_SEARCH_PORT = env('ELASTIC_SEARCH_PORT')
+
+# Sccrapy API secrets
+SCRAPY_API_HOSTNAME = env('SCRAPY_API_HOSTNAME')
+SCRAPY_API_PORT = env('SCRAPY_API_PORT')
 
 # Application definition
-
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -38,6 +66,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'corsheaders',
+    'django_celery_beat',
+    'django_createsuperuserwithpassword',
     'main',
 ]
 
@@ -63,7 +93,6 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'crawlerx_server.urls'
-
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -86,12 +115,12 @@ WSGI_APPLICATION = 'crawlerx_server.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-#     }
-# }
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+    }
+}
 
 
 # Password validation
@@ -131,3 +160,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
 
 STATIC_URL = '/static/'
+
+CELERY_IMPORTS = (
+    'main.tasks',
+)

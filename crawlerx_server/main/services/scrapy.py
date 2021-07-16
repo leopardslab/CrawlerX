@@ -6,8 +6,6 @@ from main.clients.mongo_connection import MongoConnection
 from scrapyd_api import ScrapydAPI
 import json
 
-# connect scrapyd service
-# scrapyd = ScrapydAPI('http://localhost:6800')
 
 @csrf_exempt
 @require_http_methods(['POST'])  # only get and post
