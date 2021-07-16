@@ -1,4 +1,28 @@
 version: "3.7"
+x-mongo-variables: &mongo-variables
+  MONGODB_USERNAME: admin
+  MONGODB_PASSWORD: admin
+  MONGODB_HOSTNAME: mongodb
+  MONGODB_PORT: 27017
+  MONGODB_DATABASE: crawlerx_db
+x-elasticsearch-variables: &elasticsearch-variables
+  ELASTIC_SEARCH_USERNAME: admin
+  ELASTIC_SEARCH_PASSWORD: admin
+  ELASTIC_SEARCH_HOSTNAME: elasticsearch
+  ELASTIC_SEARCH_PORT: 9200
+x-rabbitmq-variables: &rabbitmq-variables
+  CELERY_BROKER_USERNAME: guest
+  CELERY_BROKER_PASSWORD: guest
+  CELERY_BROKER_HOSTNAME: rabbitmq
+  CELERY_BROKER_PORT: 5672
+x-scrapy-variables: &scrapy-variables
+  SCRAPY_API_HOSTNAME: localhost
+  SCRAPY_API_PORT: 6000
+x-django-user-variables: &django-user-variables
+  DJANGO_ADMIN_USERNAME: admin
+  DJANGO_ADMIN_PASSWORD: admin
+  DJANGO_ADMIN_EMAIL: admin@scorelab.org
+
 services:
   django:
     build:
@@ -6,13 +30,52 @@ services:
         dockerfile: Dockerfile
     ports:
       - "8000:8000"
+    command: ["python3", "manage.py", "runserver", "0.0.0.0:8000"]
+    environment:
+      FIREBASE_APP_KEY: AIzaSyD88ucXoxhnfm3iNUA-FJ-zg-0GrJKT-Zo
+      <<: *mongo-variables
+      <<: *elasticsearch-variables
+      <<: *rabbitmq-variables
+      <<: *scrapy-variables
+      <<: *django-user-variables
+    depends_on:
+      - mongodb
+      - elasticsearch
+      - rabbitmq
 
-  scrapyd:
+  celery-beat:
+    build:
+      context: ./crawlerx_server
+      dockerfile: Dockerfile
+    command: ["python3", '-m', "celery", "-A", "crawlerx_server", "beat", "-l", "info"]
+    environment:
+      <<: *rabbitmq-variables
+    depends_on:
+      - rabbitmq
+
+  celery-worker:
+    build:
+      context: ./crawlerx_server
+      dockerfile: Dockerfile
+    command: ["python3", '-m', "celery", "-A", "crawlerx_server", "worker", "-l", "info"]
+    environment:
+      <<: *rabbitmq-variables
+    depends_on:
+      - rabbitmq
+
+  scrapy:
     build:
         context: ./scrapy_app
         dockerfile: Dockerfile
     expose:
-      - 6800   
+      - 6800
+    environment:
+      <<: *mongo-variables
+      <<: *elasticsearch-variables
+    depends_on:
+      - mongodb
+      - elasticsearch
+      - rabbitmq
 
   rabbitmq:
     image: "rabbitmq:3-management"
@@ -26,35 +89,32 @@ services:
       NAME: "rabbitmq"
     volumes:
       - ./rabbitmq-isolated.conf:/etc/rabbitmq/rabbitmq.config
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
     healthcheck:
         test: ["CMD", "curl", "-f", "http://localhost:15672"]
         interval: 30s
         timeout: 10s
-        retries: 5  
-
-  rabbitmq_consumer:
-    build:
-        context: ./scrapy_app/rabbitmq_broker
-        dockerfile: Dockerfile
-    restart: on-failure    
-    depends_on:
-      - rabbitmq
-    links: 
-        - rabbitmq  
+        retries: 5
 
   mongodb:
     image: mongo
-    restart: on-failure    
+    restart: on-failure
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: admin
     ports:
       - 27017:27017  
 
   elasticsearch:
     image: elasticsearch:7.8.1
     environment:
-      - discovery.type=single-node
+      discovery.type: single-node
+      ELASTIC_USERNAME: admin
+      ELASTIC_PASSWORD: admin
     ports:
       - 9200:9200
-      - 9300:9300    
 
   vue:
     build:
