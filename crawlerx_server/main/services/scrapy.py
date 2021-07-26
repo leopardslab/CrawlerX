@@ -22,7 +22,8 @@ def get_jobs(request):
     except Exception as e:
         return JsonResponse({'Error': 'Error while getting job details from the database, ' + str(e)}, status=400)
 
-    return JsonResponse({'status': "SUCCESS", 'data': json_data})
+    return JsonResponse({'Status': "SUCCESS", 'data': json_data})
+
 
 @csrf_exempt
 @require_http_methods(['POST'])  # only get and post
@@ -47,5 +48,5 @@ def get_jobs_by_project(request):
     except Exception as e:
         return JsonResponse({'Error': 'Error while getting job details from the database, ' + str(e)}, status=400)
 
-    return JsonResponse({'status': "SUCCESS", 'data': json_data})
+    return JsonResponse({'Status': "SUCCESS", 'data': json_data})
 

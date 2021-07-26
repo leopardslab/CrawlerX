@@ -32,4 +32,4 @@ def get_elasticsearch_data(request):
     except Exception as e:
         return JsonResponse({'Error': 'Error while getting job details from the ELK server, ' + str(e)}, status=400)
 
-    return JsonResponse({'status': "SUCCESS", 'data': json_data})
+    return JsonResponse({'Status': "SUCCESS", 'data': json_data})

@@ -130,11 +130,11 @@ def disable_schedule_job(request):
 
             task.enabled = False
             task.save()
-            return JsonResponse({'status': "SUCCESS",
-                                 'Exception': 'Successfully disabled the scheduled task_name: ' + task_name})
+            return JsonResponse({'Status': "SUCCESS",
+                                 'Message': 'Successfully disabled the scheduled task_name: ' + task_name})
         except Exception as e:
             return JsonResponse({'status': "400 BAD",
-                                 'Exception': 'Error occurred while disabling the scheduled task task_name: '
+                                 'Error': 'Error occurred while disabling the scheduled task task_name: '
                                               + task_name + ". " + str(e)}, status=400)
 
 
@@ -154,12 +154,12 @@ def delete_schedule_job(request):
                                     status=400)
 
             task.delete()
-            return JsonResponse({'status': "SUCCESS",
-                                 'Exception': 'Successfully deleted the scheduled task task_name: ' + task_name})
+            return JsonResponse({'Status': "SUCCESS",
+                                 'Message': 'Successfully deleted the scheduled task task_name: ' + task_name})
         except Exception as e:
-            return JsonResponse({'status': "400 BAD",
-                                 'Exception': 'Error occurred while deleting the scheduled task_name: '
-                                              + task_name + ". " + str(e)}, status=400)
+            return JsonResponse({'Status': "400 BAD",
+                                 'Error': 'Error occurred while deleting the scheduled task_name: '
+                                          + task_name + ". " + str(e)}, status=400)
 
 
 @csrf_exempt
@@ -201,12 +201,13 @@ def crawl_new_job(request):
 
         if (schedule_type != SCHEDULE_TASK_TYPE) \
                 and (schedule_type != INTERVAL_TASK_TYPE) and (schedule_type != HOT_TASK_TYPE):
-            return JsonResponse({'Error': 'Requested crawler_type:' + schedule_type + ' is not a valid type'}, status=400)
+            return JsonResponse({'Error': 'Requested crawler_type:' + schedule_type + ' is not a valid type'},
+                                status=400)
 
         publish_url_ids = []
         for url in url_data:
             if not is_valid_url(url):
-                return JsonResponse({'error': url + ' URL is invalid'})
+                return JsonResponse({'Error': url + ' URL is invalid'}, status=400)
 
             unique_id = str(uuid4())  # create a unique ID.
             publish_data = u'{ "unique_id": "' + unique_id + '", "job_name": "' + job_name \
@@ -241,11 +242,12 @@ def crawl_new_job(request):
                     return JsonResponse({'Error': 'Error while connecting to the MongoDB database, ' + str(e)},
                                         status=400)
             except Exception as e:
-                return JsonResponse({'status': "400 BAD",
-                                     'Exception': 'Error occurred while scheduling the data with the Celery executor, '
-                                                  + str(e)}, status=400)
+                return JsonResponse({'Status': "400 BAD",
+                                     'Error': 'Error occurred while scheduling the data with the Celery executor, '
+                                              + str(e)}, status=400)
 
-        return JsonResponse({'status': "SUCCESS", 'job_ids': publish_url_ids})
+        return JsonResponse({'status': "SUCCESS", 'Message': "Crawl job scheduled successfully.\n job_ids:"
+                                                             + str(publish_url_ids)})
 
 
 @csrf_exempt
@@ -257,7 +259,7 @@ def get_crawl_data(request):
         user_id = json_data['user_id']
         task_id = json_data['task_id']
     except JSONDecodeError as e:
-        return JsonResponse({'Error': 'Missing URLs in the request payload or empty, ' + str(e)})
+        return JsonResponse({'Error': 'Missing URLs in the request payload or empty, ' + str(e)}, status=400)
 
     if not user_id:
         return JsonResponse({'Error': 'Missing user id key in the request payload'}, status=400)
@@ -271,7 +273,7 @@ def get_crawl_data(request):
     except Exception as e:
         return JsonResponse({'Error': 'Error while getting project details from the database, ' + str(e)}, status=400)
 
-    return JsonResponse({'status': "SUCCESS", 'data': json_data})
+    return JsonResponse({'Status': "SUCCESS", 'data': json_data})
 
 
 @csrf_exempt
@@ -297,5 +299,5 @@ def get_job_data(request):
     except Exception as e:
         return JsonResponse({'Error': 'Error while getting project details from the database, ' + str(e)}, status=400)
 
-    return JsonResponse({'status': "SUCCESS", 'data': json_data})
+    return JsonResponse({'Status': "SUCCESS", 'data': json_data})
 

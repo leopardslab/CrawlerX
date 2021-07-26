@@ -16,7 +16,6 @@ def project_create(request):
         json_data = json.loads(request.body)
         user_id = json_data['user_id']
         project_name = json_data['project_name']
-        project_description = json_data['project_description']
         if not user_id:
             return JsonResponse({'Error': 'Request payload does not contain user_id'}, status=400)
 
@@ -42,7 +41,8 @@ def project_create(request):
     except Exception as e:
         return JsonResponse({'Error': 'Error while connecting to the MongoDB database, ' + str(e)}, status=400)
 
-    return JsonResponse({'status': "SUCCESS", 'message': 'project created successfully'})
+    return JsonResponse({'status': "SUCCESS", 'Message': 'Project:' + project_name + ' created successfully'})
+
 
 @csrf_exempt
 @require_http_methods(['POST'])  # only get and post
@@ -63,4 +63,4 @@ def get_projects(request):
     except Exception as e:
         return JsonResponse({'Error': 'Error while getting project details from the database, ' + str(e)}, status=400)
 
-    return JsonResponse({'status': "SUCCESS", 'data': json_data})
+    return JsonResponse({'Status': "SUCCESS", 'data': json_data})
