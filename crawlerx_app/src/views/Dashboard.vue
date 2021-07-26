@@ -465,7 +465,7 @@
           }),
           {headers: {'Content-Type': 'application/x-www-form-urlencoded', 'Token': this.$TOKEN_ID}})
           .then(response => {
-            this.$bvToast.toast(response.data['message'], {
+            this.$bvToast.toast(response.data['Message'], {
               title: 'Project Creation',
               toaster: 'b-toaster-top-right',
               solid: true,
@@ -476,7 +476,7 @@
             this.emitGlobalClickEventWhenProjectCreated()
           })
           .catch(e => {
-            this.$bvToast.toast(e.getError().toString(), {
+            this.$bvToast.toast(e.response.data['Message'], {
               title: 'Project Creation',
               toaster: 'b-toaster-top-right',
               solid: true,
@@ -507,9 +507,9 @@
       },
       createJob: function () {
         // Exit when the form isn't valid
-        if (!this.checkJobCreateFormValidity()) {
-          return
-        }
+        // if (!this.checkJobCreateFormValidity()) {
+        //   return
+        // }
 
         if (this.selectedScheduleType === 1) {
           if (!(!this.jobForm.interval.occurrence.length > 0)) {
@@ -553,9 +553,9 @@
 
         this.$http.post('http://localhost:8000/api/crawl/execute_job',
           JSON.stringify(payload),
-          {headers: {'Content-Type': 'application/x-www-form-urlencoded'}})
+          {headers: {'Content-Type': 'application/json'}})
           .then(response => {
-            this.$bvToast.toast(response.data['message'], {
+            this.$bvToast.toast(response.data['Message'], {
               title: 'Crawl Job Schedule',
               toaster: 'b-toaster-top-right',
               solid: true,
@@ -566,7 +566,7 @@
             this.emitGlobalClickEventWhenJobCreated();
           })
           .catch(e => {
-            this.$bvToast.toast(e.getError().toString(), {
+            this.$bvToast.toast(e.response.data['Error'], {
               title: 'Crawl Job Schedule',
               toaster: 'b-toaster-top-right',
               solid: true,
@@ -597,7 +597,13 @@
               }
             })
             .catch(e => {
-              alert(e.getError().toString())
+              this.$bvToast.toast(e.response.data['Error'], {
+                title: 'Crawl Job Projects',
+                toaster: 'b-toaster-top-right',
+                solid: true,
+                variant: 'danger',
+                appendToast: false
+              });
             });
         }
       },

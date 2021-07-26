@@ -11,7 +11,6 @@ class MongoConnection:
     mongo_db = MONGODB_DATABASE
 
     def __init__(self):
-        print(self.mongo_uri)
         self.client = pymongo.MongoClient(self.mongo_uri)
         self.db = self.client[self.mongo_db]
 

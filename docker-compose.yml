@@ -14,8 +14,8 @@ x-rabbitmq-variables: &rabbitmq-variables
   CELERY_BROKER_HOSTNAME: rabbitmq
   CELERY_BROKER_PORT: 5672
 x-scrapy-variables: &scrapy-variables
-  SCRAPY_API_HOSTNAME: localhost
-  SCRAPY_API_PORT: 6000
+  SCRAPY_API_HOSTNAME: scrapy
+  SCRAPY_API_PORT: 6800
 x-django-user-variables: &django-user-variables
   DJANGO_ADMIN_USERNAME: admin
   DJANGO_ADMIN_PASSWORD: admin
@@ -57,7 +57,10 @@ services:
       dockerfile: Dockerfile
     command: ["python3", '-m', "celery", "-A", "crawlerx_server", "worker", "-l", "info"]
     environment:
+      <<: *mongo-variables
+      <<: *elasticsearch-variables
       <<: *rabbitmq-variables
+      <<: *scrapy-variables
     depends_on:
       - rabbitmq
 

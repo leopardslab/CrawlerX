@@ -38,12 +38,12 @@ def schedule_job_with_interval(request):
         granularity = schedule_data['granularity']
 
         if not occurrence:
-            return JsonResponse({'status': "400 BAD",
-                                 'Error': 'Missing occurrence key in the request payload'})
+            return JsonResponse({'Status': "400 BAD",
+                                 'Error': 'Missing occurrence key in the request payload'}, status=400)
 
         if not granularity:
-            return JsonResponse({'status': "400 BAD",
-                                 'Error': 'Missing granularity key in the request payload'})
+            return JsonResponse({'Status': "400 BAD",
+                                 'Error': 'Missing granularity key in the request payload'}, status=400)
 
         if granularity == DAYS:
             granularity_value = IntervalSchedule.DAYS
@@ -54,7 +54,7 @@ def schedule_job_with_interval(request):
         elif granularity == SECONDS:
             granularity_value = IntervalSchedule.SECONDS
         else:
-            return JsonResponse({'status': "400 BAD", 'Error': 'Granularity value is not valid'})
+            return JsonResponse({'Status': "400 BAD", 'Error': 'Granularity value is not valid'}, status=400)
 
         del request['schedule_data']  # remove schedule meta data
         schedule, created = IntervalSchedule.objects.get_or_create(every=occurrence, period=granularity_value)
@@ -63,9 +63,9 @@ def schedule_job_with_interval(request):
                                                     task='main.tasks.schedule_cron_job', kwargs=json.dumps(request))
         return interval_task
     except Exception as e:
-        return JsonResponse({'status': "400 BAD",
+        return JsonResponse({'Status': "400 BAD",
                              'Error': 'Required fields occurrence and granularity values not found or empty, '
-                                      + str(e)})
+                                      + str(e)}, status=400)
 
 
 def schedule_job_with_cron_tab(request):
@@ -79,24 +79,24 @@ def schedule_job_with_cron_tab(request):
         month_of_year = schedule_data['month_of_year']
 
         if not minute:
-            return JsonResponse({'status': "400 BAD",
-                                 'Error': 'Missing minute key in the request payload'})
+            return JsonResponse({'Status': "400 BAD",
+                                 'Error': 'Missing minute key in the request payload'}, status=400)
 
         if not hour:
-            return JsonResponse({'status': "400 BAD",
-                                 'Error': 'Missing hour key in the request payload'})
+            return JsonResponse({'Status': "400 BAD",
+                                 'Error': 'Missing hour key in the request payload'}, status=400)
 
         if not day_of_week:
-            return JsonResponse({'status': "400 BAD",
-                                 'Error': 'Missing day_of_week key in the request payload'})
+            return JsonResponse({'Status': "400 BAD",
+                                 'Error': 'Missing day_of_week key in the request payload'}, status=400)
 
         if not day_of_month:
-            return JsonResponse({'status': "400 BAD",
-                                 'Error': 'Missing day_of_month key in the request payload'})
+            return JsonResponse({'Status': "400 BAD",
+                                 'Error': 'Missing day_of_month key in the request payload'}, status=400)
 
         if not month_of_year:
-            return JsonResponse({'status': "400 BAD",
-                                 'Error': 'Missing month_of_year key in the request payload'})
+            return JsonResponse({'Status': "400 BAD",
+                                 'Error': 'Missing month_of_year key in the request payload'}, status=400)
 
         del request['schedule_data']  # remove schedule meta data
         schedule, created = CrontabSchedule.objects.get_or_create(minute=minute, hour=hour,
@@ -108,9 +108,9 @@ def schedule_job_with_cron_tab(request):
                                                      task='main.tasks.schedule_cron_job', kwargs=json.dumps(request))
         return scheduled_task
     except Exception as e:
-        return JsonResponse({'status': "400 BAD",
+        return JsonResponse({'Status': "400 BAD",
                              'Error': 'Required fields schedule_minute, schedule_hour, day_of_week, day_of_month '
-                                      'and  month_of_year values not found or empty, ' + str(e)})
+                                      'and  month_of_year values not found or empty, ' + str(e)}, status=400)
 
 
 @csrf_exempt
