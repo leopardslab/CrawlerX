@@ -125,7 +125,8 @@ def disable_schedule_job(request):
             task = PeriodicTask.objects.get(name=task_name)
 
             if not task:
-                return JsonResponse({'Error': 'Scheduled task_name: ' + task_name + ' is invalid or does not exist'})
+                return JsonResponse({'Error': 'Scheduled task_name: ' + task_name + ' is invalid or does not exist'}
+                                    , status=400)
 
             task.enabled = False
             task.save()
@@ -134,7 +135,7 @@ def disable_schedule_job(request):
         except Exception as e:
             return JsonResponse({'status': "400 BAD",
                                  'Exception': 'Error occurred while disabling the scheduled task task_name: '
-                                              + task_name + ". " + str(e)})
+                                              + task_name + ". " + str(e)}, status=400)
 
 
 @csrf_exempt
@@ -149,7 +150,8 @@ def delete_schedule_job(request):
             task = PeriodicTask.objects.get(name=task_name)
 
             if not task:
-                return JsonResponse({'Error': 'Scheduled task_name: ' + task_name + ' is invalid or does not exist'})
+                return JsonResponse({'Error': 'Scheduled task_name: ' + task_name + ' is invalid or does not exist'},
+                                    status=400)
 
             task.delete()
             return JsonResponse({'status': "SUCCESS",
@@ -157,7 +159,7 @@ def delete_schedule_job(request):
         except Exception as e:
             return JsonResponse({'status': "400 BAD",
                                  'Exception': 'Error occurred while deleting the scheduled task_name: '
-                                              + task_name + ". " + str(e)})
+                                              + task_name + ". " + str(e)}, status=400)
 
 
 @csrf_exempt
@@ -177,29 +179,29 @@ def crawl_new_job(request):
             schedule_type = json_data['schedule_type']
             schedule_data = json_data['schedule_data']
         except (JSONDecodeError, KeyError) as e:
-            return JsonResponse({'Error': 'Missing fields in the request payload or empty, ' + str(e)})
+            return JsonResponse({'Error': 'Missing fields in the request payload or empty, ' + str(e)}, status=400)
 
         if not user_id:
-            return JsonResponse({'Error': 'Missing user id key in the request payload'})
+            return JsonResponse({'Error': 'Missing user id key in the request payload'}, status=400)
 
         if not job_name:
-            return JsonResponse({'Error': 'Missing job name key in the request payload'})
+            return JsonResponse({'Error': 'Missing job name key in the request payload'}, status=400)
 
         if not url_data:
-            return JsonResponse({'Error': 'Missing urls key in the request payload'})
+            return JsonResponse({'Error': 'Missing urls key in the request payload'}, status=400)
 
         if not project_name:
-            return JsonResponse({'Error': 'Missing project_name key in the request payload'})
+            return JsonResponse({'Error': 'Missing project_name key in the request payload'}, status=400)
 
         if not crawler_name:
-            return JsonResponse({'Error': 'Missing crawler_name key in the request payload'})
+            return JsonResponse({'Error': 'Missing crawler_name key in the request payload'}, status=400)
 
         if not schedule_type:
-            return JsonResponse({'Error': 'Missing schedule_type key in the request payload'})
+            return JsonResponse({'Error': 'Missing schedule_type key in the request payload'}, status=400)
 
         if (schedule_type != SCHEDULE_TASK_TYPE) \
                 and (schedule_type != INTERVAL_TASK_TYPE) and (schedule_type != HOT_TASK_TYPE):
-            return JsonResponse({'Error': 'Requested crawler_type:' + schedule_type + ' is not a valid type'})
+            return JsonResponse({'Error': 'Requested crawler_type:' + schedule_type + ' is not a valid type'}, status=400)
 
         publish_url_ids = []
         for url in url_data:
@@ -236,11 +238,12 @@ def crawl_new_job(request):
                     mongo_connection = MongoConnection()
                     mongo_connection.upsert_item(query, publish_data, "jobs")
                 except Exception as e:
-                    return JsonResponse({'Error': 'Error while connecting to the MongoDB database, ' + str(e)})
+                    return JsonResponse({'Error': 'Error while connecting to the MongoDB database, ' + str(e)},
+                                        status=400)
             except Exception as e:
                 return JsonResponse({'status': "400 BAD",
                                      'Exception': 'Error occurred while scheduling the data with the Celery executor, '
-                                                  + str(e)})
+                                                  + str(e)}, status=400)
 
         return JsonResponse({'status': "SUCCESS", 'job_ids': publish_url_ids})
 
@@ -257,16 +260,16 @@ def get_crawl_data(request):
         return JsonResponse({'Error': 'Missing URLs in the request payload or empty, ' + str(e)})
 
     if not user_id:
-        return JsonResponse({'Error': 'Missing user id key in the request payload'})
+        return JsonResponse({'Error': 'Missing user id key in the request payload'}, status=400)
 
     if not task_id:
-        return JsonResponse({'Error': 'Missing task id key in the request payload'})
+        return JsonResponse({'Error': 'Missing task id key in the request payload'}, status=400)
 
     try:
         mongo_connection = MongoConnection()
         json_data = mongo_connection.get_items("crawled_data", {'user_id': user_id, 'task_id': task_id})
     except Exception as e:
-        return JsonResponse({'Error': 'Error while getting project details from the database, ' + str(e)})
+        return JsonResponse({'Error': 'Error while getting project details from the database, ' + str(e)}, status=400)
 
     return JsonResponse({'status': "SUCCESS", 'data': json_data})
 
@@ -280,19 +283,19 @@ def get_job_data(request):
         user_id = json_data['user_id']
         unique_id = json_data['unique_id']
     except JSONDecodeError as e:
-        return JsonResponse({'Error': 'Missing URLs in the request payload or empty, ' + str(e)})
+        return JsonResponse({'Error': 'Missing URLs in the request payload or empty, ' + str(e)}, status=400)
 
     if not user_id:
-        return JsonResponse({'Error': 'Missing user id key in the request payload'})
+        return JsonResponse({'Error': 'Missing user id key in the request payload'}, status=400)
 
     if not unique_id:
-        return JsonResponse({'Error': 'Missing unique id key in the request payload'})
+        return JsonResponse({'Error': 'Missing unique id key in the request payload'}, status=400)
 
     try:
         mongo_connection = MongoConnection()
         json_data = mongo_connection.get_items("jobs", {'user_id': user_id, 'unique_id': unique_id})
     except Exception as e:
-        return JsonResponse({'Error': 'Error while getting project details from the database, ' + str(e)})
+        return JsonResponse({'Error': 'Error while getting project details from the database, ' + str(e)}, status=400)
 
     return JsonResponse({'status': "SUCCESS", 'data': json_data})
 
