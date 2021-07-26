@@ -1,7 +1,5 @@
 version: "3.7"
 x-mongo-variables: &mongo-variables
-  MONGODB_USERNAME: admin
-  MONGODB_PASSWORD: admin
   MONGODB_HOSTNAME: mongodb
   MONGODB_PORT: 27017
   MONGODB_DATABASE: crawlerx_db
@@ -101,9 +99,6 @@ services:
   mongodb:
     image: mongo
     restart: on-failure
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: admin
-      MONGO_INITDB_ROOT_PASSWORD: admin
     ports:
       - 27017:27017  
 
@@ -116,11 +111,11 @@ services:
     ports:
       - 9200:9200
 
-  vue:
-    build:
-      context: ./crawlerx_app
-      dockerfile: Dockerfile
-    ports:
-      - "8080:8080"
-    depends_on:
-      - django     
+  # vue:
+  #   build:
+  #     context: ./crawlerx_app
+  #     dockerfile: Dockerfile
+  #   ports:
+  #     - "8080:8080"
+  #   depends_on:
+  #     - django     

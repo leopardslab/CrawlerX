@@ -3,15 +3,15 @@ import logging
 import json
 from bson import json_util
 
-from crawlerx_server.settings import MONGODB_DATABASE, MONGODB_USERNAME, MONGODB_PASSWORD, MONGODB_HOSTNAME, \
-    MONGODB_PORT
+from crawlerx_server.settings import MONGODB_DATABASE, MONGODB_HOSTNAME, MONGODB_PORT
 
 
 class MongoConnection:
-    mongo_uri = 'mongodb://' + MONGODB_USERNAME + ':' + MONGODB_PASSWORD + '@' + MONGODB_HOSTNAME + ':' + MONGODB_PORT
+    mongo_uri = 'mongodb://' + MONGODB_HOSTNAME + ':' + MONGODB_PORT
     mongo_db = MONGODB_DATABASE
 
     def __init__(self):
+        print(self.mongo_uri)
         self.client = pymongo.MongoClient(self.mongo_uri)
         self.db = self.client[self.mongo_db]
 
