@@ -23,6 +23,7 @@ def handle_fault_execution(request, exception):
     job_name = request["job_name"]
     user_id = request["user_id"]
     crawler_name = request["crawler_name"]
+    schedule_category = request["schedule_category"]
 
     # update relevant MongoDC entry in jobs collection with task_id and status
     update_data = u'{ "unique_id": "' + unique_id + '", "url": "' + job_url + '", "project_name": "' \
@@ -31,6 +32,7 @@ def handle_fault_execution(request, exception):
                   + '", "task_id": "Not Generated", "status": "FAILED" }'
 
     data_item = json.loads(update_data)
+    data_item['schedule_category'] = schedule_category
     query = {'user_id': user_id, 'url': job_url, 'project_name': project_name, 'job_name': job_name,
              'crawler_name': crawler_name}
     mongo_connection = MongoConnection()
@@ -77,6 +79,7 @@ def schedule_cron_job(self, **kwargs):
         user_id = json_body["user_id"]
         status = json_body["status"]
         crawler_name = json_body["crawler_name"]
+        schedule_category = json_body["schedule_category"]
 
         if not unique_id or not job_url or not project_name or not user_id or not status \
                 or not crawler_name or not job_name:
@@ -108,6 +111,7 @@ def schedule_cron_job(self, **kwargs):
                               + '", "task_id": "' + task_id + '", "status": "RUNNING" }'
 
                 data_item = json.loads(update_data)
+                data_item['schedule_category'] = schedule_category
                 query = {'user_id': user_id, 'url': job_url, 'project_name': project_name, 'job_name': job_name,
                          'crawler_name': crawler_name}
                 mongo_connection = MongoConnection()

@@ -476,7 +476,7 @@
             this.emitGlobalClickEventWhenProjectCreated()
           })
           .catch(e => {
-            this.$bvToast.toast(e.response.data['Message'], {
+            this.$bvToast.toast(e.response.data['Error'], {
               title: 'Project Creation',
               toaster: 'b-toaster-top-right',
               solid: true,
@@ -507,9 +507,9 @@
       },
       createJob: function () {
         // Exit when the form isn't valid
-        // if (!this.checkJobCreateFormValidity()) {
-        //   return
-        // }
+        if (!this.checkJobCreateFormValidity()) {
+          return
+        }
 
         if (this.selectedScheduleType === 1) {
           if (!(!this.jobForm.interval.occurrence.length > 0)) {
