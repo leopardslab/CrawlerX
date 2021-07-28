@@ -6,18 +6,18 @@ from django.urls import path
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    url(r'^api/project/create', project.project_create, name='create_project'),
-    url(r'^api/project/jobs', scrapy.get_jobs_by_project, name='get_jobs_by_project'),
-    url(r'^api/projects', project.get_projects, name='get_project'),
-    url(r'^api/jobs', scrapy.get_jobs, name='get_jobs'),
-    url(r'^api/job', crawl_job.get_job_data, name='get_job'),
+    path('api/project/create', project.project_create, name='create_project'),
+    path('api/project/jobs', scrapy.get_jobs_by_project, name='get_jobs_by_project'),
+    path('api/projects', project.get_projects, name='get_project'),
+    path('api/jobs', scrapy.get_jobs, name='get_jobs'),
+    path('api/job', crawl_job.get_job_data, name='get_job'),
 
-    url(r'^api/job/crawldata', crawl_job.get_crawl_data, name='get_job_data'),
-    url(r'^api/crawl/disable_job', crawl_job.disable_schedule_job, name='disabled_crawl_job'),
-    url(r'^api/crawl/delete_job', crawl_job.delete_schedule_job, name='delete_crawl_job'),
-    url(r'^api/crawl/execute_job', crawl_job.crawl_new_job, name='run_crawl_job'),
+    path('api/job/crawl_data', crawl_job.get_crawl_data, name='get_crawl_data'),
+    path('api/crawl/disable_job', crawl_job.disable_schedule_job, name='disable_schedule_job'),
+    path('api/crawl/delete_job/<job_id>', crawl_job.delete_crawl_job, name='delete_crawl_job'),
+    path('api/crawl/execute_job', crawl_job.crawl_new_job, name='run_crawl_job'),
 
-    url(r'^api/elasticdata', elasticsearch.get_elasticsearch_data, name='get_elastic_data'),
+    path('api/elasticdata', elasticsearch.get_elasticsearch_data, name='get_elastic_data'),
 ]
 
 if settings.DEBUG:

@@ -1,5 +1,17 @@
 <template>
     <b-container fluid>
+        <!--moved modal at the top-->
+        <!--<b-modal ref="myModalRef" hide-footer hide-header>-->
+            <!--<div>-->
+                <!--<h3 class="font-weight-light">Do you want to delete this job?</h3>-->
+            <!--</div>-->
+            <!--<div class="float-right pt-4">-->
+                <!--<b-btn type="submit" variant="outline-danger"  @click="deleteCrawlJob">Delete</b-btn>-->
+            <!--</div>-->
+            <!--<div class="float-right pr-2 pt-4">-->
+                <!--<b-btn  type="submit" variant="outline-danger"  style="padding-left: 10px" @click="hideModal">Cancel</b-btn>-->
+            <!--</div>-->
+        <!--</b-modal>-->
         <b-row>
             <b-col cols="12" class="mt-4">
                 <b-card-group deck>
@@ -31,7 +43,26 @@
         </b-row>
         <b-row>
             <b-col cols="12" class="mt-3">
-                <b-table striped hover :bordered="bordered" :borderless="borderless" :head-variant="headVariant" :items="jobItems"></b-table>
+                <b-table id="job-table" striped hover size="sm" :per-page="perPage" :current-page="currentPage" :fields="fields" :bordered="bordered" :borderless="borderLess" :head-variant="headVariant" :items="jobItems">
+                    <template #cell(action)="row">
+                        <center>
+                            <b-button v-if="!isDeleteButtonHidden" size="sm" variant="outline-danger" class="mb-2" @click="showModal(row.value)">
+                                Delete <b-icon icon="x-circle" aria-hidden="true"></b-icon>
+                            </b-button>
+                            <b-modal ref="myModalRef" centered title="Delete Crawl Job" @ok="deleteCrawlJob" @cancel="hideModal">
+                                <p class="my-4">Are you sure you want to delete <b>{{deletingJobId}}</b> job?</p>
+                            </b-modal>
+                        </center>
+                    </template>
+                </b-table>
+                <b-pagination
+                        size="sm"
+                        align="right"
+                        v-model="currentPage"
+                        :total-rows="rows"
+                        :per-page="perPage"
+                        aria-controls="job-table"
+                ></b-pagination>
             </b-col>
         </b-row>
     </b-container>
@@ -44,7 +75,10 @@
         name: 'DashboardPage',
         data() {
             return {
-                borderless: false,
+                deletingJobId: "",
+                isDeleteButtonHidden: false,
+                showDeletePopup: false,
+                borderLess: false,
                 headVariant: 'dark',
                 bordered: true,
                 jobItems: [],
@@ -53,7 +87,23 @@
                 pendingJobCount: 0,
                 failedJobCount: 0,
                 projects: [],
+                fields: [
+                  { key: 'project_name', label: 'Project Name'},
+                  { key: 'job_name', label: 'Job Name'},
+                  { key: 'job_id', label: 'Job ID'},
+                  { key: 'crawler_type', label: 'Crawler Type'},
+                  { key: 'scheduler', label: 'Scheduler'},
+                  { key: 'status', label: 'Status'},
+                  { key: 'action', label: 'Action'},
+                ],
+                perPage: 8,
+                currentPage: 1,
             }
+        },
+        computed:{
+          rows(){
+            return this.jobItems.length
+          }
         },created() {
             EventBus.$on('project_created', data => {
                 this.getProjectData();
@@ -66,6 +116,14 @@
             this.getProjectData();
             this.getCrawledJobData();
         }, methods: {
+            showModal(id) {
+              this.deletingJobId = id;
+              this.$refs.myModalRef.show()
+            },
+            hideModal () {
+              this.$root.$emit('bv::hide::modal','myModalRef');
+              this.$refs.myModalRef.hide()
+            },
             getCrawledJobData: function () {
                 this.$http.post('http://localhost:8000/api/jobs',
                     JSON.stringify({'user_id': this.$USER_ID}),
@@ -76,9 +134,8 @@
                         var pendingJobCount = 0;
                         var failedJobCount = 0;
                         response.data.data.forEach(function(obj) {
-
                             job_items.push({project_name: obj.project_name, job_name:obj.job_name, job_id: obj.unique_id,
-                                crawler_type: obj.crawler_name, status: obj.status});
+                                crawler_type: obj.crawler_name, scheduler:obj.schedule_category, status: obj.status, action: obj.unique_id});
                             if (obj.status === "COMPLETED") {
                                 completedJobCount += 1;
                             } else if (obj.status === "PENDING" || obj.status === "RUNNING") {
@@ -89,8 +146,11 @@
                         });
 
                         if (response.data.data.length === 0) {
+                            this.isDeleteButtonHidden = true;
                             job_items.push({project_name: "-", job_name: "-", job_id: "-",
-                                crawler_type: "-", status: "-"});
+                                crawler_type: "-", scheduler: "-", status: "-", action: "-"});
+                        } else {
+                          this.isDeleteButtonHidden = false;
                         }
 
                         this.completedJobCount = completedJobCount;
@@ -121,7 +181,42 @@
             },
             emitGlobalProjectData() {
                 EventBus.$emit('project_data', this.projects);
+            },
+            deleteCrawlJob: function () {
+              this.$http.delete('http://localhost:8000/api/crawl/delete_job/' + this.deletingJobId,
+                {headers: {'Content-Type': 'application/x-www-form-urlencoded'}})
+                .then(response => {
+                  this.$bvToast.toast(response.data['Message'], {
+                    title: 'Crawl Job Deletion',
+                    toaster: 'b-toaster-top-right',
+                    solid: true,
+                    variant: 'success',
+                    appendToast: false
+                  });
+                  this.getCrawledJobData();
+                })
+                .catch(e => {
+                  this.$bvToast.toast(e.response.data['Error'], {
+                    title: 'Crawl Job Deletion',
+                    toaster: 'b-toaster-top-right',
+                    solid: true,
+                    variant: 'danger',
+                    appendToast: false
+                  });
+                });
             }
         }
     }
 </script>
+
+<style  lang="scss">
+    .page-item.active .page-link {
+        background-color: #343a40 !important;
+        border-color: #343a40 !important;
+        color: white !important;
+    }
+
+    .page-item .page-link{
+        color: #343a40 !important;
+    }
+</style>

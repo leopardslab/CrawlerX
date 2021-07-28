@@ -32,4 +32,8 @@ class MongoConnection:
             json_docs.append(json.loads(json_doc))
         return json_docs
 
+    def delete_item(self, collection_name, query):
+        cursor = self.db[collection_name].delete_one(query)
+        return int(cursor.deleted_count)
+
 
