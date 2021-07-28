@@ -33,24 +33,32 @@
           <b>Crawled Data:</b>
         </h5>
 
-        <div style=" position:absolute; top:0; right:10vh;">
+        <div class="text-right" style="">
           <b-button
-            class="copybutton"
+            class="copybutton pull-right"
             variant="success"
             type="button"
             @click="doCopy"
-          >Copy Selected Data only</b-button>
+          >Copy Selected Data</b-button>
           <b-button
-            class="copybutton"
+            class="copybutton pull-right"
             variant="danger"
             type="button"
             v-clipboard:copy="crawledData"
             v-clipboard:success="clipboardSuccessHandler"
             v-clipboard:error="clipboardErrorHandler"
           >Copy All</b-button>
+          <b-button
+                  class="copybutton pull-right"
+                  variant="warning"
+                  type="button"
+                  v-clipboard:copy="crawledData"
+                  v-clipboard:success="clipboardSuccessHandler"
+                  v-clipboard:error="clipboardErrorHandler"
+          >Download as JSON</b-button>
         </div>
 
-        <div class="window" style="min-height: 300px; max-height: 80vh; overflow-y: scroll;">
+        <div class="window" style="margin-top:10px; min-height: 300px; max-height: 80vh; overflow-y: scroll;">
           <div v-if="loading" style=" text-align: center;  padding: 80px 0;">Loading...</div>
           <div v-else>
             <vue-json-pretty
@@ -119,9 +127,7 @@ export default {
 
   methods: {
     getCurrentJobData: function () {
-      this.$http
-        .post(
-          "http://localhost:8000/api/job",
+      this.$http.post("http://localhost:8000/api/job",
           JSON.stringify({
             user_id: this.$USER_ID,
             unique_id: this.$route.params.jobId,
@@ -133,6 +139,7 @@ export default {
           var objectTaskId = null;
           var objectTaskStatus = null;
           response.data.data.forEach(function (obj) {
+            console.log(obj);
             objectTaskId = obj.task_id;
             if (
               objectTaskId === undefined ||
@@ -155,9 +162,7 @@ export default {
           this.jobStatus = objectTaskStatus;
 
           if (this.taskId !== null && this.jobStatus === "COMPLETED") {
-            this.$http
-              .post(
-                "http://localhost:8000/api/job/crawldata",
+            this.$http.post("http://localhost:8000/api/job/crawl_data",
                 JSON.stringify({
                   user_id: this.$USER_ID,
                   unique_id: this.$route.params.jobId,
@@ -274,11 +279,11 @@ pre code {
 }
 
 .vjs-tree.has-selectable-control.is-selectable.is-mouseover {
-  background: #0e922a;
+  background: #295787;
   cursor: pointer;
 }
 .copybutton {
-  margin-left: 1rem;
+  margin-left: 0.5rem;
 }
 
 @keyframes spin {
