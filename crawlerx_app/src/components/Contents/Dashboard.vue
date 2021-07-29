@@ -1,17 +1,5 @@
 <template>
     <b-container fluid>
-        <!--moved modal at the top-->
-        <!--<b-modal ref="myModalRef" hide-footer hide-header>-->
-            <!--<div>-->
-                <!--<h3 class="font-weight-light">Do you want to delete this job?</h3>-->
-            <!--</div>-->
-            <!--<div class="float-right pt-4">-->
-                <!--<b-btn type="submit" variant="outline-danger"  @click="deleteCrawlJob">Delete</b-btn>-->
-            <!--</div>-->
-            <!--<div class="float-right pr-2 pt-4">-->
-                <!--<b-btn  type="submit" variant="outline-danger"  style="padding-left: 10px" @click="hideModal">Cancel</b-btn>-->
-            <!--</div>-->
-        <!--</b-modal>-->
         <b-row>
             <b-col cols="12" class="mt-4">
                 <b-card-group deck>

@@ -21,7 +21,7 @@
           striped
           hover
           :bordered="bordered"
-          :borderless="borderless"
+          :borderless="borderLess"
           :head-variant="headVariant"
           :items="jobData"
         ></b-table>
@@ -49,12 +49,11 @@
             v-clipboard:error="clipboardErrorHandler"
           >Copy All</b-button>
           <b-button
+                  v-if="crawledDataJson"
                   class="copybutton pull-right"
                   variant="warning"
                   type="button"
-                  v-clipboard:copy="crawledData"
-                  v-clipboard:success="clipboardSuccessHandler"
-                  v-clipboard:error="clipboardErrorHandler"
+                  @click="saveFile"
           >Download as JSON</b-button>
         </div>
 
@@ -89,6 +88,8 @@
 import VueJsonPretty from "vue-json-pretty";
 import "vue-json-pretty/lib/styles.css";
 import Vue from "vue";
+import FileSaver from 'file-saver'
+
 export default {
   name: "JobData",
   components: {
@@ -96,7 +97,7 @@ export default {
   },
   data() {
     return {
-      borderless: false,
+      borderLess: false,
       headVariant: "dark",
       bordered: true,
       jobData: [],
@@ -126,6 +127,21 @@ export default {
   },
 
   methods: {
+    saveFile() {
+      try {
+        const data = JSON.stringify(this.crawledDataJson);
+        const blob = new Blob([data], { type: 'application/json' });
+        FileSaver.saveAs(blob, this.jobData[0].project_name + '_' + this.jobData[0].job_name + '.json');
+      } catch(e) {
+        this.$bvToast.toast('Failed to save the file !', {
+          title: 'Save as a JSON',
+          toaster: 'b-toaster-top-right',
+          solid: true,
+          variant: 'danger',
+          appendToast: false
+        });
+      }
+    },
     getCurrentJobData: function () {
       this.$http.post("http://localhost:8000/api/job",
           JSON.stringify({
