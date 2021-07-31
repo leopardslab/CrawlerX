@@ -125,26 +125,31 @@ def disable_schedule_job(request):
         try:
             json_data = json.loads(request.body)
             task_name = json_data['celery_task_name']
-            is_disabled = json_data['is_disabled']
+            is_enabled = json_data['is_enabled']
             task = PeriodicTask.objects.get(name=task_name)
             if not task:
                 return JsonResponse({'Error': 'Scheduled task_name: ' + task_name + ' is invalid or does not exist'}
                                     , status=400)
-            if type(is_disabled) == bool:
-                return JsonResponse({'Error': 'Scheduled is_disabled: ' + is_disabled + ' is invalid parameter'}
+            if type(is_enabled) != bool:
+                return JsonResponse({'Error': 'Scheduled is_enabled: ' + is_enabled + ' is invalid parameter'}
                                     , status=400)
-            task.enabled = is_disabled
+            task.enabled = is_enabled
             task.save()
-            if is_disabled:
+            mongo_connection = MongoConnection()
+            if is_enabled:
+                mongo_connection.update_item({"celery_task_name": task_name, "status": "DISABLED"},
+                                             {'$set': {"status": "RUNNING"}}, "jobs")
                 value = "enabled"
             else:
+                mongo_connection.update_item({"celery_task_name": task_name, "status": "RUNNING"},
+                                             {'$set': {"status": "DISABLED"}}, "jobs")
                 value = "disabled"
             return JsonResponse({'Status': "SUCCESS",
                                  'Message': 'Successfully ' + value + ' the scheduled task_name: ' + task_name})
         except Exception as e:
             return JsonResponse({'status': "400 BAD",
                                  'Error': 'Error occurred while disabling the scheduled task task_name: '
-                                              + task_name + ". " + str(e)}, status=400)
+                                          + task_name + ". " + str(e)}, status=400)
 
 
 def delete_schedule_job(task_name):

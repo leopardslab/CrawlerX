@@ -22,7 +22,7 @@
                         <center>
                             <b-button size="sm" variant="outline-warning" class="mb-2"
                                       @click="changeSchedulerState(row.value)">
-                                {{(projectsWiseJobs.isSchedulerDisabled)? "Enable" : "Disable" }}
+                                {{ (row.value.includes("DISABLED")) ? "Enable" : "Disable"}}
                                 <b-icon icon="x-circle" aria-hidden="true"></b-icon>
                             </b-button>
                         </center>
@@ -201,8 +201,16 @@
           });
       },
       changeSchedulerState: function (celeryTaskName) {
+        var spilter = celeryTaskName.split('@');
+        let schedulerName = spilter[0];
+        let schedulerState = spilter[1];
+        if (schedulerState === "DISABLED") {
+          schedulerState = true;
+        } else {
+          schedulerState = false;
+        }
         this.$http.post('http://localhost:8000/api/crawl/disable_job',
-          JSON.stringify({'celery_task_name': celeryTaskName, 'is_disabled': true}),
+          JSON.stringify({'celery_task_name': schedulerName, 'is_enabled': schedulerState}),
           {headers: {'Content-Type': 'application/x-www-form-urlencoded'}})
           .then(response => {
             this.$bvToast.toast(response.data['Message'], {
@@ -212,6 +220,15 @@
               variant: 'success',
               appendToast: false
             });
+
+            let updatedProjectsWiseJobs = [];
+            this.projectsWiseJobs.forEach(function (item) {
+              if (item.celery_task_name === celeryTaskName) {
+                item['celery_task_name'] = schedulerName + '@' + schedulerState.toString();
+              }
+              updatedProjectsWiseJobs.push(item);
+            });
+            this.projectsWiseJobs = updatedProjectsWiseJobs;
             this.getCrawledIntervalJobDataProjectWise();
           })
           .catch(e => {
@@ -235,8 +252,8 @@
               if (obj["schedule_time"] === undefined) {
                 projectDrillDown.push({
                   project_name: obj.project_name, job_name: obj.job_name, action: obj.unique_id,
-                  job_id: obj.unique_id, url: obj.url, allow: obj.celery_task_name,
-                  crawler_type: obj.crawler_name, status: obj.status,
+                  job_id: obj.unique_id, url: obj.url, allow: obj.celery_task_name + "@" + obj.status,
+                  crawler_type: obj.crawler_name, status: obj.status
                 });
               } else {
                 projectDrillDownData.push({

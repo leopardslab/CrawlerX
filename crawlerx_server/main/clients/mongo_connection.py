@@ -28,6 +28,11 @@ class MongoConnection:
         self.db[collection_name].update(query, data_item, True)
         logging.info("Post added to MongoDB")
 
+    def update_item(self, query, data_item, collection_name):
+        # how to handle each post
+        self.db[collection_name].update_one(query, data_item, True)
+        logging.info("Post added to MongoDB")
+
     def get_items(self, collection_name, query):
         # retrieve data from database
         cursor = self.db[collection_name].find(query)
