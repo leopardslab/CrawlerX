@@ -18,6 +18,11 @@ class MongoConnection:
         # clean up when db is closed
         self.client.close()
 
+    def insert_item(self, data_item, collection_name):
+        # how to handle each post
+        self.db[collection_name].insert(data_item, True)
+        logging.info("Post inserted to MongoDB")
+
     def upsert_item(self, query, data_item, collection_name):
         # how to handle each post
         self.db[collection_name].update(query, data_item, True)
@@ -32,8 +37,8 @@ class MongoConnection:
             json_docs.append(json.loads(json_doc))
         return json_docs
 
-    def delete_item(self, collection_name, query):
-        cursor = self.db[collection_name].delete_one(query)
+    def delete_items(self, collection_name, query):
+        cursor = self.db[collection_name].delete_many(query)
         return int(cursor.deleted_count)
 
 

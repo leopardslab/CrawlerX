@@ -11,14 +11,13 @@ import json
 def get_jobs(request):
     try:
         json_data = json.loads(request.body)
-        user_id = json_data['user_id']
     except JSONDecodeError as e:
         return JsonResponse({'Error': 'Missing user_id in the request payload or empty, ' + str(e)}, status=400)
 
     # take urls comes from client.
     try:
         mongo_connection = MongoConnection()
-        json_data = mongo_connection.get_items("jobs", {'user_id': user_id})
+        json_data = mongo_connection.get_items("jobs", json_data)
     except Exception as e:
         return JsonResponse({'Error': 'Error while getting job details from the database, ' + str(e)}, status=400)
 

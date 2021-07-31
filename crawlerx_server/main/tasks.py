@@ -4,6 +4,7 @@ from urllib.parse import urlparse
 import logging
 import json
 import requests
+import time
 
 # connect scrapy daemon service
 from crawlerx_server.settings import SCRAPY_API_HOSTNAME, SCRAPY_API_PORT
@@ -16,7 +17,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger()
 
 
-def handle_fault_execution(request, exception):
+def handle_fault_execution(request, schedule_time, exception):
     unique_id = request["unique_id"]
     job_url = request["url"]
     project_name = request["project_name"]
@@ -33,12 +34,17 @@ def handle_fault_execution(request, exception):
 
     data_item = json.loads(update_data)
     data_item['schedule_category'] = schedule_category
-    query = {'user_id': user_id, 'url': job_url, 'project_name': project_name, 'job_name': job_name,
-             'crawler_name': crawler_name}
-    mongo_connection = MongoConnection()
-    mongo_connection.upsert_item(query, data_item, "jobs")
-    mongo_connection.close_connection()
+    data_item['schedule_time'] = schedule_time
 
+    mongo_connection = MongoConnection()
+    if schedule_category == "Instant":
+        # update relevant MongoDC entry in jobs collection with task_id and status
+        query = {'user_id': user_id, 'url': job_url, 'project_name': project_name, 'job_name': job_name,
+                 'crawler_name': crawler_name}
+        mongo_connection.upsert_item(query, data_item, "jobs")
+    else:
+        # store job records in MongoDB database
+        mongo_connection.insert_item(data_item, "jobs")
     logger.exception("Current can not schedule with invalid date or time format. "
                      "Hence, job execution failed. " + str(exception))
 
@@ -68,6 +74,7 @@ def check_url_gives_response(url):
 @shared_task(bind=True)
 def schedule_cron_job(self, **kwargs):
     json_body = ""
+    schedule_time = str(time.time())
     try:
         json_body = kwargs
         if "kwargs" in json_body:
@@ -93,6 +100,7 @@ def schedule_cron_job(self, **kwargs):
                     'user_id': user_id,
                     'job_name': job_name,
                     'project_name': project_name,
+                    'schedule_time': schedule_time,
                     'USER_AGENT': 'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)'
                 }
 
@@ -104,26 +112,31 @@ def schedule_cron_job(self, **kwargs):
                     scrapy_daemon.schedule("crawlerx_project", crawler_name, settings=settings,
                                            url=job_url, domain=job_domain)
 
-                # update relevant MongoDC entry in jobs collection with task_id and status
-                update_data = u'{ "unique_id": "' + unique_id + '", "url": "' + job_url + '", "project_name": "' \
-                              + project_name + '", "job_name": "' + job_name + '", "user_id": "' + user_id \
-                              + '", "crawler_name": "' + crawler_name \
-                              + '", "task_id": "' + task_id + '", "status": "RUNNING" }'
-
-                data_item = json.loads(update_data)
-                data_item['schedule_category'] = schedule_category
-                query = {'user_id': user_id, 'url': job_url, 'project_name': project_name, 'job_name': job_name,
-                         'crawler_name': crawler_name}
                 mongo_connection = MongoConnection()
-                mongo_connection.upsert_item(query, data_item, "jobs")
-                mongo_connection.close_connection()
+
+                job_data = u'{ "unique_id": "' + unique_id + '", "url": "' + job_url + '", "project_name": "' \
+                           + project_name + '", "job_name": "' + job_name + '", "user_id": "' + user_id \
+                           + '", "crawler_name": "' + crawler_name \
+                           + '", "task_id": "' + task_id + '", "status": "RUNNING" }'
+                data_item = json.loads(job_data)
+                data_item['schedule_category'] = schedule_category
+                data_item['schedule_time'] = schedule_time
+
+                if schedule_category == "Instant":
+                    # update relevant MongoDC entry in jobs collection with task_id and status
+                    query = {'user_id': user_id, 'url': job_url, 'project_name': project_name, 'job_name': job_name,
+                             'crawler_name': crawler_name}
+                    mongo_connection.upsert_item(query, data_item, "jobs")
+                else:
+                    # store job records in MongoDB database
+                    mongo_connection.insert_item(data_item, "jobs")
 
                 # task id of the crawl job
                 logger.info("Crawling job has been started with ID - " + task_id)
             except Exception as e:
-                handle_fault_execution(json_body, e)
+                handle_fault_execution(json_body, schedule_time, e)
         else:
-            handle_fault_execution(json_body, Exception("Current job URL does not seems available. Hence, "
-                                                        "job execution failed."))
+            handle_fault_execution(json_body, schedule_time,
+                                   Exception("Current job URL does not seems available. Hence, job execution failed."))
     except Exception as e:
-        handle_fault_execution(json_body, e)
+        handle_fault_execution(json_body, schedule_time, e)
