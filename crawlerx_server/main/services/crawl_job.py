@@ -125,36 +125,37 @@ def disable_schedule_job(request):
         try:
             json_data = json.loads(request.body)
             task_name = json_data['celery_task_name']
+            is_disabled = json_data['is_disabled']
             task = PeriodicTask.objects.get(name=task_name)
-
             if not task:
                 return JsonResponse({'Error': 'Scheduled task_name: ' + task_name + ' is invalid or does not exist'}
                                     , status=400)
-
-            task.enabled = False
+            if type(is_disabled) == bool:
+                return JsonResponse({'Error': 'Scheduled is_disabled: ' + is_disabled + ' is invalid parameter'}
+                                    , status=400)
+            task.enabled = is_disabled
             task.save()
+            if is_disabled:
+                value = "enabled"
+            else:
+                value = "disabled"
             return JsonResponse({'Status': "SUCCESS",
-                                 'Message': 'Successfully disabled the scheduled task_name: ' + task_name})
+                                 'Message': 'Successfully ' + value + ' the scheduled task_name: ' + task_name})
         except Exception as e:
             return JsonResponse({'status': "400 BAD",
                                  'Error': 'Error occurred while disabling the scheduled task task_name: '
                                               + task_name + ". " + str(e)}, status=400)
 
 
-def delete_schedule_job(request):
-    task_name = ""
+def delete_schedule_job(task_name):
     try:
-        json_data = json.loads(request.body)
-        task_name = json_data['celery_task_name']
         task = PeriodicTask.objects.get(name=task_name)
-
         if not task:
             return JsonResponse({'Error': 'Scheduled task_name: ' + task_name + ' is invalid or does not exist'},
                                 status=400)
 
         task.delete()
-        return JsonResponse({'Status': "SUCCESS",
-                             'Message': 'Successfully deleted the scheduled task task_name: ' + task_name})
+        return True
     except Exception as e:
         return JsonResponse({'Status': "400 BAD",
                              'Error': 'Error occurred while deleting the scheduled task_name: '
@@ -212,21 +213,24 @@ def crawl_new_job(request):
             publish_data = u'{ "unique_id": "' + unique_id + '", "job_name": "' + job_name \
                            + '", "url": "' + url + '", "project_name": "' \
                            + project_name + '", "user_id": "' + user_id + '", "crawler_name": "' + crawler_name \
-                           + '", "task_id":"", "status": "PENDING" }'
+                           + '", "task_id":"" }'
 
             publish_data = json.loads(publish_data)
             try:
                 # schedule data with celery task scheduler
                 if schedule_type == SCHEDULE_TASK_TYPE:
                     publish_data['schedule_data'] = schedule_data
-                    publish_data['schedule_category'] = INTERVAL
+                    publish_data['schedule_category'] = CRON
+                    publish_data['status'] = "RUNNING"
                     celery_task = schedule_job_with_cron_tab(publish_data)
                 elif schedule_type == INTERVAL_TASK_TYPE:
                     publish_data['schedule_data'] = schedule_data
-                    publish_data['schedule_category'] = CRON
+                    publish_data['schedule_category'] = INTERVAL
+                    publish_data['status'] = "RUNNING"
                     celery_task = schedule_job_with_interval(publish_data)
                 else:
                     publish_data['schedule_category'] = INSTANT
+                    publish_data['status'] = "PENDING"
                     celery_task = schedule_cron_job.delay(kwargs=json.dumps(publish_data))
 
                 if isinstance(celery_task, JsonResponse):
@@ -257,22 +261,22 @@ def crawl_new_job(request):
 def get_crawl_data(request):
     # take urls comes from client.
     try:
-        print("@@@@@@@@@@@@@@@@@@@@@@@")
         json_data = json.loads(request.body)
-        user_id = json_data['user_id']
-        task_id = json_data['task_id']
     except JSONDecodeError as e:
         return JsonResponse({'Error': 'Missing URLs in the request payload or empty, ' + str(e)}, status=400)
 
-    if not user_id:
+    if "user_id" not in json_data:
         return JsonResponse({'Error': 'Missing user id key in the request payload'}, status=400)
 
-    if not task_id:
+    if "task_id" not in json_data:
         return JsonResponse({'Error': 'Missing task id key in the request payload'}, status=400)
+
+    if "unique_id" not in json_data:
+        return JsonResponse({'Error': 'Missing unique id key in the request payload'}, status=400)
 
     try:
         mongo_connection = MongoConnection()
-        json_data = mongo_connection.get_items("crawled_data", {'user_id': user_id, 'task_id': task_id})
+        json_data = mongo_connection.get_items("crawled_data", json_data)
     except Exception as e:
         return JsonResponse({'Error': 'Error while getting project details from the database, ' + str(e)}, status=400)
 
@@ -284,22 +288,19 @@ def get_crawl_data(request):
 def get_job_data(request):
     # take urls comes from client.
     try:
-        print("########################")
         json_data = json.loads(request.body)
-        user_id = json_data['user_id']
-        unique_id = json_data['unique_id']
     except JSONDecodeError as e:
         return JsonResponse({'Error': 'Missing URLs in the request payload or empty, ' + str(e)}, status=400)
 
-    if not user_id:
+    if "user_id" not in json_data:
         return JsonResponse({'Error': 'Missing user id key in the request payload'}, status=400)
 
-    if not unique_id:
-        return JsonResponse({'Error': 'Missing unique id key in the request payload'}, status=400)
+    if ("task_id" not in json_data) and ("unique_id" not in json_data):
+        return JsonResponse({'Error': 'Missing unique_id or task_id key in the request payload'}, status=400)
 
     try:
         mongo_connection = MongoConnection()
-        json_data = mongo_connection.get_items("jobs", {'user_id': user_id, 'unique_id': unique_id})
+        json_data = mongo_connection.get_items("jobs", json_data)
     except Exception as e:
         return JsonResponse({'Error': 'Error while getting project details from the database, ' + str(e)}, status=400)
 
@@ -313,15 +314,44 @@ def delete_crawl_job(request, job_id):
         try:
             mongo_connection = MongoConnection()
             json_data = mongo_connection.get_items("jobs", {'unique_id': job_id})
-            if len(json_data) != 1:
+            if len(json_data) == 0:
                 return JsonResponse({'Error': 'Requested job id' + str(job_id) + 'does not exists'}, status=400)
+
+            # this should be a interval or cron job
+            celery_task_name = ""
+            if len(json_data) > 1:
+                for obj in json_data:
+                    if 'celery_task_name' in obj:
+                        celery_task_name = obj['celery_task_name']
+                        break
 
             delete_count = 0
             if json_data[0]['schedule_category'] == INSTANT:
-                delete_count = mongo_connection.delete_item("jobs", {'unique_id': job_id})
-
+                delete_count = mongo_connection.delete_items("jobs", {'unique_id': job_id})
+            else:
+                # delete scheduled task from django beat
+                if not celery_task_name:
+                    celery_task_name = json_data[0]['celery_task_name']
+                delete_schedule_job(celery_task_name)
+                delete_count = mongo_connection.delete_items("jobs", {'unique_id': job_id})
             if delete_count == 0:
                 return JsonResponse({'Error': 'Delete action failed for the job_id: ' + str(job_id)}, status=400)
+
+        except Exception as e:
+            return JsonResponse({'Error': 'Error while deleting the job from the database, ' + str(e)}, status=400)
+
+        return JsonResponse({'Status': "SUCCESS", 'Message': 'Crawl job deleted successfully'})
+
+
+@csrf_exempt
+@require_http_methods(['DELETE'])
+def delete_crawl_task(request, task_id):
+    if request.method == 'DELETE':
+        try:
+            mongo_connection = MongoConnection()
+            delete_count = mongo_connection.delete_items("jobs", {'task_id': task_id})
+            if delete_count == 0:
+                return JsonResponse({'Error': 'Delete action failed for the task_id: ' + str(task_id)}, status=400)
 
         except Exception as e:
             return JsonResponse({'Error': 'Error while deleting the job from the database, ' + str(e)}, status=400)
