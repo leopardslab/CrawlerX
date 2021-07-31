@@ -36,7 +36,7 @@ class ScrapyAppPipeline:
         self.es.close()
 
     def process_item(self, item, spider):
-        query = {'unique_id': item['unique_id'], 'user_id': item['user_id'],
+        query = {'unique_id': item['unique_id'], 'user_id': item['user_id'], 'schedule_time': item['schedule_time'],
                  'task_id': item['task_id'], 'job_name': item['job_name'], 'project_name': item['project_name']}
 
         # name of the all crawled data stored collection
@@ -53,7 +53,7 @@ class ScrapyAppPipeline:
 
             # add data into the elastic search
             try:
-                element_id = item['unique_id'].lower() + '-' + item['task_id'].lower()
+                element_id = item['unique_id'].lower() + '-' + item['task_id'].lower() + '-' + item['schedule_time']
                 index = item['user_id'].lower()
                 index_exists = self.es.indices.exists(index=index)
 

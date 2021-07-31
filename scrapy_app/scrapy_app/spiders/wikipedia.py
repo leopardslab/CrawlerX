@@ -23,6 +23,7 @@ class WikipediaSpider(CrawlSpider):
         parsed_item['project_name'] = parsed_settings['project_name']
         parsed_item['job_name'] = parsed_settings['job_name']
         parsed_item['unique_id'] = parsed_settings['unique_id']
+        parsed_item['schedule_time'] = parsed_settings['schedule_time']
         parsed_item['task_id'] = os.environ['SCRAPY_JOB']
 
         crawled_data = []
