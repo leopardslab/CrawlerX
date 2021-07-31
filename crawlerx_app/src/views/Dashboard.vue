@@ -411,7 +411,7 @@
           },
           {
             href: '/dashboard/analysis',
-            title: 'ELK Analysis',
+            title: 'Elasticsearch Analysis',
             icon: 'fa fa-search-plus'
           }
         ],
@@ -422,7 +422,7 @@
         selectedProject: null,
         crawlerOptions: ["crawlerx", "stackoverflow", "wikipedia", "reddit", "github_trending"],
         selectedGranularity: "HOURS",
-        granularityOptions: ["SECONDS", "MINUTES", "HOURS", "DAYS"],
+        granularityOptions: ["MINUTES", "HOURS", "DAYS"],
         selectedScheduleType: 0,
       }
     },

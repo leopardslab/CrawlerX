@@ -23,7 +23,6 @@
                             <b-button size="sm" variant="outline-warning" class="mb-2"
                                       @click="changeSchedulerState(row.value)">
                                 {{ (row.value.includes("DISABLED")) ? "Enable" : "Disable"}}
-                                <b-icon icon="x-circle" aria-hidden="true"></b-icon>
                             </b-button>
                         </center>
                     </template>
