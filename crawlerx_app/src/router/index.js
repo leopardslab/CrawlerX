@@ -9,6 +9,7 @@ import "firebase/auth";
 import Projects from "../components/Contents/Projects";
 import Jobs from "../components/Contents/Jobs";
 import IntervalJobs from "../components/Contents/IntervalJobs";
+import CronJobs from "../components/Contents/CronJobs";
 import JobData from "../components/Contents/JobData";
 import ScheduleJobData from "../components/Contents/ScheduleJobData";
 import ELKAnalysis from "../components/Contents/ELKAnalysis";
@@ -50,6 +51,10 @@ const router = new Router({
         {
           path: "interval-jobs",
           component: IntervalJobs,
+        },
+        {
+          path: "cron-jobs",
+          component: CronJobs,
         },
         {
           // UserPosts will be rendered inside User's <router-view>

@@ -374,7 +374,7 @@
           {
             href: '/dashboard',
             title: 'Dashboard',
-            icon: 'fa fa-download'
+            icon: 'fa fa-desktop'
           },
           {
             header: true,
@@ -384,7 +384,7 @@
           {
             href: '/dashboard/projects',
             title: 'Projects',
-            icon: 'fa fa-cogs'
+            icon: 'fa fa-briefcase'
           },
           {
             href: '/dashboard/jobs',
@@ -394,7 +394,12 @@
           {
             href: '/dashboard/interval-jobs',
             title: 'Interval Jobs',
-            icon: 'fa fa-bell'
+            icon: 'fa fa-clock'
+          },
+          {
+            href: '/dashboard/cron-jobs',
+            title: 'Cron Jobs',
+            icon: 'fa fa-calendar'
           },
           {
             component: separator
@@ -407,7 +412,7 @@
           {
             href: '/dashboard/analysis',
             title: 'ELK Analysis',
-            icon: 'fa fa-bell'
+            icon: 'fa fa-search-plus'
           }
         ],
         collapsed: false,
