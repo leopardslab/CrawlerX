@@ -151,9 +151,9 @@ export default {
           { headers: { "Content-Type": "application/x-www-form-urlencoded" } }
         )
         .then((response) => {
-          var project = [];
-          var objectTaskId = null;
-          var objectTaskStatus = null;
+          let project = [];
+          let objectTaskId = null;
+          let objectTaskStatus = null;
           response.data.data.forEach(function (obj) {
             console.log(obj);
             objectTaskId = obj.task_id;

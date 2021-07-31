@@ -388,7 +388,12 @@
           },
           {
             href: '/dashboard/jobs',
-            title: 'Jobs',
+            title: 'Instant Jobs',
+            icon: 'fa fa-bell'
+          },
+          {
+            href: '/dashboard/interval-jobs',
+            title: 'Interval Jobs',
             icon: 'fa fa-bell'
           },
           {

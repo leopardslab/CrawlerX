@@ -64,7 +64,7 @@
                         });
 
                         this.$http.post('http://localhost:8000/api/jobs',
-                            JSON.stringify({'user_id': this.$USER_ID}),
+                            JSON.stringify({'user_id': this.$USER_ID, 'schedule_category': 'Instant'}),
                             {headers: {'Content-Type': 'application/x-www-form-urlencoded'}})
                             .then(response => {
                                 response.data.data.forEach(function (obj) {
