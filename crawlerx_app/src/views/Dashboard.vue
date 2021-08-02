@@ -468,12 +468,12 @@
           return
         }
 
-        this.$http.post('http://localhost:8000/api/project/create',
+        this.$http.post(process.env.VUE_APP_DJANGO_PROTOCOL + '://' + process.env.VUE_APP_DJANGO_HOSTNAME + ':' +  process.env.VUE_APP_DJANGO_PORT + '/api/project/create',
           JSON.stringify({
             'user_id': this.$USER_ID, 'project_name': this.projectForm.projectName,
             'project_description': this.projectForm.description
           }),
-          {headers: {'Content-Type': 'application/x-www-form-urlencoded', 'Token': this.$TOKEN_ID}})
+          {headers: {'Content-Type': 'application/x-www-form-urlencoded', 'Access-Control-Allow-Origin': '*', 'Token': this.$TOKEN_ID}})
           .then(response => {
             this.$bvToast.toast(response.data['Message'], {
               title: 'Project Creation',
@@ -561,7 +561,7 @@
           };
         }
 
-        this.$http.post('http://localhost:8000/api/crawl/execute_job',
+        this.$http.post(process.env.VUE_APP_DJANGO_PROTOCOL + '://' + process.env.VUE_APP_DJANGO_HOSTNAME + ':' +  process.env.VUE_APP_DJANGO_PORT + '/api/crawl/execute_job',
           JSON.stringify(payload),
           {headers: {'Content-Type': 'application/json'}})
           .then(response => {
@@ -592,7 +592,7 @@
       },
       getProjects() {
         if (this.projectOptions.length === 0) {
-          this.$http.post('http://localhost:8000/api/projects',
+          this.$http.post(process.env.VUE_APP_DJANGO_PROTOCOL + '://' + process.env.VUE_APP_DJANGO_HOSTNAME + ':' +  process.env.VUE_APP_DJANGO_PORT + '/api/projects',
             JSON.stringify({'user_id': this.$USER_ID}),
             {headers: {'Content-Type': 'application/x-www-form-urlencoded'}})
             .then(response => {

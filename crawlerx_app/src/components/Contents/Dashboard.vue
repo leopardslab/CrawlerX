@@ -23,16 +23,42 @@
         </b-row>
         <b-row>
             <b-col cols="12" class="mt-5">
-                <h6>Crawling Job Details:</h6>
-                <b-button variant="outline-info" style="float: right; margin-top:-40px;" @click="getCrawledJobData">
+                <h5>Crawling Job Details:</h5>
+            </b-col>
+         </b-row>
+        <b-row style="margin-top: 10px">
+            <b-col cols="4">
+                <b-form-group
+                        label="Filter By Name:"
+                        label-for="filter-input"
+                        label-cols-sm="3"
+                        label-align-sm="left"
+                        label-size="sm"
+                >
+                    <b-input-group size="sm">
+                        <b-form-input
+                                id="filter-input"
+                                v-model="filter"
+                                type="search"
+                                placeholder="Type to Filter"
+                        ></b-form-input>
+                        <b-input-group-append>
+                            <b-button :disabled="!filter" @click="filter = ''">Clear</b-button>
+                        </b-input-group-append>
+                    </b-input-group>
+                </b-form-group>
+            </b-col>
+            <b-col cols="8">
+                <b-button variant="outline-info" style="float: right;" @click="getCrawledJobData">
                     <b-icon icon="arrow-repeat" font-scale="1"></b-icon>
                     Refresh
                 </b-button>
             </b-col>
         </b-row>
         <b-row>
-            <b-col cols="12" class="mt-3">
+            <b-col cols="12">
                 <b-table id="job-table" striped hover size="sm" :per-page="perPage" :current-page="currentPage"
+                         :filter="filter"
                          :fields="fields" :bordered="bordered" :borderless="borderLess" :head-variant="headVariant"
                          :items="jobItems">
                     <template v-slot:cell(job_id)="data">
@@ -72,6 +98,8 @@
     name: 'DashboardPage',
     data() {
       return {
+        filter: null,
+        filterOn: [],
         deletingJobId: "",
         isDeleteButtonHidden: false,
         showDeletePopup: false,
@@ -122,7 +150,7 @@
         this.$refs.myModalRef.hide()
       },
       getCrawledJobData: function () {
-        this.$http.post('http://localhost:8000/api/jobs',
+        this.$http.post(process.env.VUE_APP_DJANGO_PROTOCOL + '://' + process.env.VUE_APP_DJANGO_HOSTNAME + ':' +  process.env.VUE_APP_DJANGO_PORT + '/api/jobs',
           JSON.stringify({'user_id': this.$USER_ID}),
           {headers: {'Content-Type': 'application/x-www-form-urlencoded'}})
           .then(response => {
@@ -171,7 +199,7 @@
           });
       },
       getProjectData: function () {
-        this.$http.post('http://localhost:8000/api/projects',
+        this.$http.post(process.env.VUE_APP_DJANGO_PROTOCOL + '://' + process.env.VUE_APP_DJANGO_HOSTNAME + ':' +  process.env.VUE_APP_DJANGO_PORT + '/api/projects',
           JSON.stringify({'user_id': this.$USER_ID}),
           {headers: {'Content-Type': 'application/x-www-form-urlencoded'}})
           .then(response => {
@@ -191,7 +219,7 @@
         EventBus.$emit('project_data', this.projects);
       },
       deleteCrawlJob: function () {
-        this.$http.delete('http://localhost:8000/api/crawl/delete_job/' + this.deletingJobId,
+        this.$http.delete(process.env.VUE_APP_DJANGO_PROTOCOL + '://' + process.env.VUE_APP_DJANGO_HOSTNAME + ':' +  process.env.VUE_APP_DJANGO_PORT + '/api/crawl/delete_job/' + this.deletingJobId,
           {headers: {'Content-Type': 'application/x-www-form-urlencoded'}})
           .then(response => {
             this.$bvToast.toast(response.data['Message'], {

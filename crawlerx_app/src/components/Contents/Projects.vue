@@ -66,7 +66,7 @@
             getCrawledProjectData: function () {
                 var project_items = [];
 
-                this.$http.post('http://localhost:8000/api/projects',
+                this.$http.post(process.env.VUE_APP_DJANGO_PROTOCOL + '://' + process.env.VUE_APP_DJANGO_HOSTNAME + ':' +  process.env.VUE_APP_DJANGO_PORT + '/api/projects',
                     JSON.stringify({'user_id': this.$USER_ID}),
                     {headers: {'Content-Type': 'application/x-www-form-urlencoded'}})
                     .then(response => {
@@ -77,7 +77,7 @@
                             })
                         });
 
-                        this.$http.post('http://localhost:8000/api/jobs',
+                        this.$http.post(process.env.VUE_APP_DJANGO_PROTOCOL + '://' + process.env.VUE_APP_DJANGO_HOSTNAME + ':' +  process.env.VUE_APP_DJANGO_PORT + '/api/jobs',
                             JSON.stringify({'user_id': this.$USER_ID}),
                             {headers: {'Content-Type': 'application/x-www-form-urlencoded'}})
                             .then(response => {

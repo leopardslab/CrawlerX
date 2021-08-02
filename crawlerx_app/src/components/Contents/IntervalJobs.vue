@@ -47,10 +47,73 @@
                         :per-page="perPage"
                         aria-controls="interval-job-table"
                 ></b-pagination>
-                <h6>Interval Schedule Jobs</h6>
+
+                <h5>Interval Schedule Jobs</h5>
+                <b-row>
+                    <b-col md="4" class="my-2">
+                        <b-form-group
+                                label="Sort"
+                                label-for="sort-by-select"
+                                label-cols-sm="1"
+                                label-align-sm="right"
+                                label-size="sm"
+                                class="mb-0"
+                        >
+                            <b-input-group size="sm">
+                                <b-form-select
+                                        id="sort-by-select"
+                                        v-model="sortBy"
+                                        :options="sortOptions"
+                                        class="w-75"
+                                >
+                                    <template #first>
+                                        <option value="">-- none --</option>
+                                    </template>
+                                </b-form-select>
+
+                                <b-form-select
+                                        v-model="sortDesc"
+                                        :disabled="!sortBy"
+                                        size="sm"
+                                        class="w-25"
+                                >
+                                    <option :value="false">Asc</option>
+                                    <option :value="true">Desc</option>
+                                </b-form-select>
+                            </b-input-group>
+                        </b-form-group>
+                    </b-col>
+                    <b-col md="4"/>
+                    <b-col md="4" class="my-2">
+                        <b-form-group
+                                label="Filter"
+                                label-for="filter-input"
+                                label-cols-sm="3"
+                                label-align-sm="right"
+                                label-size="sm"
+                                class="mb-0"
+                        >
+                            <b-input-group size="sm">
+                                <b-form-input
+                                        id="filter-input"
+                                        v-model="filter"
+                                        type="search"
+                                        placeholder="Type to Filter"
+                                ></b-form-input>
+                                <b-input-group-append>
+                                    <b-button :disabled="!filter" @click="filter = ''">Clear</b-button>
+                                </b-input-group-append>
+                            </b-input-group>
+                        </b-form-group>
+                    </b-col>
+                </b-row>
                 <b-table id="interval-job-table-data" striped hover size="sm" :per-page="perDataPage"
                          :current-page="currentDataPage" :fields="jobDataFields" :bordered="bordered"
                          :borderless="borderLess"
+                         :filter="filter"
+                         :sort-by.sync="sortBy"
+                         :sort-desc.sync="sortDesc"
+                         :sort-direction="sortDirection"
                          :head-variant="headVariant" :items="projectsWiseSchedulerJobs">
                     <template v-slot:cell(task_id)="data">
                         <router-link :to="'/dashboard/schedule-job/' + data.value">{{data.value}}</router-link>
@@ -88,6 +151,11 @@
     name: 'IntervalJobsPage',
     data() {
       return {
+        sortDesc: false,
+        sortDirection: 'desc',
+        sortBy: '',
+        filter: null,
+        filterOn: [],
         deletingJobId: "",
         deletingTaskId: "",
         perPage: 4,
@@ -113,7 +181,7 @@
           {key: 'project_name', label: 'Project Name'},
           {key: 'job_name', label: 'Job Name'},
           {key: 'task_id', label: 'Task ID'},
-          {key: 'schedule_time', label: 'Scheduled At'},
+          {key: 'schedule_time', label: 'Scheduled At', sortable: true, sortDirection: 'desc'},
           {key: 'crawler_type', label: 'Crawler Type'},
           {key: 'status', label: 'Status'},
           {key: 'action', label: 'Remove'},
@@ -128,6 +196,13 @@
         this.getCrawledIntervalJobDataProjectWise();
       });
     }, computed: {
+      sortOptions() {
+        return this.jobDataFields
+          .filter(f => f.sortable)
+          .map(f => {
+            return { text: f.label, value: f.key }
+          })
+      },
       rows() {
         return this.projectsWiseJobs.length
       },
@@ -154,7 +229,7 @@
         this.$refs.myModalRefTask.hide()
       },
       deleteCrawlJob: function () {
-        this.$http.delete('http://localhost:8000/api/crawl/delete_job/' + this.deletingJobId,
+        this.$http.delete(process.env.VUE_APP_DJANGO_PROTOCOL + '://' + process.env.VUE_APP_DJANGO_HOSTNAME + ':' +  process.env.VUE_APP_DJANGO_PORT + '/api/crawl/delete_job/' + this.deletingJobId,
           {headers: {'Content-Type': 'application/x-www-form-urlencoded'}})
           .then(response => {
             this.$bvToast.toast(response.data['Message'], {
@@ -177,7 +252,7 @@
           });
       },
       deleteCrawlTask: function () {
-        this.$http.delete('http://localhost:8000/api/crawl/delete_task/' + this.deletingTaskId,
+        this.$http.delete(process.env.VUE_APP_DJANGO_PROTOCOL + '://' + process.env.VUE_APP_DJANGO_HOSTNAME + ':' +  process.env.VUE_APP_DJANGO_PORT + '/api/crawl/delete_task/' + this.deletingTaskId,
           {headers: {'Content-Type': 'application/x-www-form-urlencoded'}})
           .then(response => {
             this.$bvToast.toast(response.data['Message'], {
@@ -208,7 +283,7 @@
         } else {
           schedulerState = false;
         }
-        this.$http.post('http://localhost:8000/api/crawl/disable_job',
+        this.$http.post(process.env.VUE_APP_DJANGO_PROTOCOL + '://' + process.env.VUE_APP_DJANGO_HOSTNAME + ':' +  process.env.VUE_APP_DJANGO_PORT + '/api/crawl/disable_job',
           JSON.stringify({'celery_task_name': schedulerName, 'is_enabled': schedulerState}),
           {headers: {'Content-Type': 'application/x-www-form-urlencoded'}})
           .then(response => {
@@ -243,7 +318,7 @@
       getCrawledIntervalJobDataProjectWise: function () {
         let projectDrillDown = [];
         let projectDrillDownData = [];
-        this.$http.post('http://localhost:8000/api/jobs',
+        this.$http.post(process.env.VUE_APP_DJANGO_PROTOCOL + '://' + process.env.VUE_APP_DJANGO_HOSTNAME + ':' +  process.env.VUE_APP_DJANGO_PORT + '/api/jobs',
           JSON.stringify({'user_id': this.$USER_ID, 'schedule_category': 'Interval'}),
           {headers: {'Content-Type': 'application/x-www-form-urlencoded'}})
           .then(response => {

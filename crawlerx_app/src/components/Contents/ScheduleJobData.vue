@@ -144,7 +144,7 @@ export default {
       }
     },
     getCurrentJobData: function () {
-      this.$http.post("http://localhost:8000/api/job",
+      this.$http.post(process.env.VUE_APP_DJANGO_PROTOCOL + "://" + process.env.VUE_APP_DJANGO_HOSTNAME + ":" +  process.env.VUE_APP_DJANGO_PORT + "/api/job",
           JSON.stringify({
             user_id: this.$USER_ID,
             task_id: this.$route.params.taskId,
@@ -182,7 +182,7 @@ export default {
           this.jobId = objectJobId;
 
           if (this.taskId !== null && this.jobStatus === "COMPLETED") {
-            this.$http.post("http://localhost:8000/api/job/crawl_data",
+            this.$http.post(process.env.VUE_APP_DJANGO_PROTOCOL + "://" + process.env.VUE_APP_DJANGO_HOSTNAME + ":" +  process.env.VUE_APP_DJANGO_PORT + "/api/job/crawl_data",
                 JSON.stringify({
                   user_id: this.$USER_ID,
                   unique_id: this.jobId,
