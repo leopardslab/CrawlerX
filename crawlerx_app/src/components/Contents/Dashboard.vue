@@ -82,12 +82,12 @@
                                 <b-icon icon="x-circle" aria-hidden="true"></b-icon>
                             </b-button>
                         </center>
-                        <b-modal ref="myModalRef" centered title="Delete Crawl Job" @ok="deleteCrawlJob"
-                                 @cancel="hideModal">
-                            <p class="my-4">Are you sure you want to delete <b>{{deletingJobId}}</b> job?</p>
-                        </b-modal>
                     </template>
                 </b-table>
+                <b-modal ref="myModalRef" centered title="Delete Crawl Job" @ok="deleteCrawlJob"
+                         @cancel="hideModal">
+                    <p class="my-4">Are you sure you want to delete <b>{{deletingJobId}}</b> job?</p>
+                </b-modal>
                 <b-pagination
                         size="sm"
                         align="right"
