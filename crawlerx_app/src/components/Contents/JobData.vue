@@ -28,6 +28,16 @@
           <template v-slot:cell(url)="data">
             <b-link :href="data.value" target="_blank">{{data.value}}</b-link>
           </template>
+          <template #cell(status)="row">
+            <center>
+              <b-icon v-if="row.value == 'COMPLETED'" icon="check-circle-fill" style="color:green;"></b-icon>
+              <b-icon v-if="row.value == 'RUNNING'" icon="arrow-repeat" style="color:orange;"></b-icon>
+              <b-icon v-if="row.value == 'FAILED'" icon="exclamation-circle-fill" style="color:red;"></b-icon>
+              <b-icon v-if="row.value == 'DISABLED'" icon="exclamation-circle-fill" style="color:dodgerblue;"></b-icon>
+              <b-icon v-if="row.value == 'PENDING'" icon="circle-fill" style="color:goldenrod;"></b-icon>
+              {{row.value}}
+            </center>
+          </template>
         </b-table>
       </b-col>
     </b-row>

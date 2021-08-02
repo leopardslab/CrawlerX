@@ -62,7 +62,17 @@
                          :fields="fields" :bordered="bordered" :borderless="borderLess" :head-variant="headVariant"
                          :items="jobItems">
                     <template v-slot:cell(job_id)="data">
-                        <router-link :to="'/dashboard/job/' + data.value">{{data.value}}</router-link>
+                        <router-link :to="'/dashboard/job/' + data.value"> {{data.value}}</router-link>
+                    </template>
+                    <template #cell(status)="row">
+                        <center>
+                            <b-icon v-if="row.value == 'COMPLETED'" icon="check-circle-fill" style="color:green;"></b-icon>
+                            <b-icon v-if="row.value == 'RUNNING'" icon="arrow-repeat" style="color:orange;"></b-icon>
+                            <b-icon v-if="row.value == 'FAILED'" icon="exclamation-circle-fill" style="color:red;"></b-icon>
+                            <b-icon v-if="row.value == 'DISABLED'" icon="exclamation-circle-fill" style="color:dodgerblue;"></b-icon>
+                            <b-icon v-if="row.value == 'PENDING'" icon="circle-fill" style="color:goldenrod;"></b-icon>
+                            {{row.value}}
+                        </center>
                     </template>
                     <template #cell(action)="row">
                         <center>
