@@ -21,6 +21,16 @@
                             <template v-slot:cell(job_id)="data">
                                 <router-link :to="'/dashboard/job/' + data.value">{{data.value}}</router-link>
                             </template>
+                            <template #cell(status)="row">
+                                <center>
+                                    <b-icon v-if="row.value == 'COMPLETED'" icon="check-circle-fill" style="color:green;"></b-icon>
+                                    <b-icon v-if="row.value == 'RUNNING'" icon="arrow-repeat" style="color:orange;"></b-icon>
+                                    <b-icon v-if="row.value == 'FAILED'" icon="exclamation-circle-fill" style="color:red;"></b-icon>
+                                    <b-icon v-if="row.value == 'DISABLED'" icon="exclamation-circle-fill" style="color:dodgerblue;"></b-icon>
+                                    <b-icon v-if="row.value == 'PENDING'" icon="circle-fill" style="color:goldenrod;"></b-icon>
+                                    {{row.value}}
+                                </center>
+                            </template>
                         </b-table>
                     </b-list-group-item>
                 </b-list-group>
@@ -55,7 +65,7 @@
         }, methods: {
             getCrawledJobDataProjectWise: function () {
                 var project_drilldown = [];
-                this.$http.post('http://localhost:8000/api/projects',
+                this.$http.post(process.env.VUE_APP_DJANGO_PROTOCOL + '://' + process.env.VUE_APP_DJANGO_HOSTNAME + ':' +  process.env.VUE_APP_DJANGO_PORT + '/api/projects',
                     JSON.stringify({'user_id': this.$USER_ID}),
                     {headers: {'Content-Type': 'application/x-www-form-urlencoded'}})
                     .then(response => {
@@ -63,8 +73,8 @@
                             project_drilldown.push({project_name: obj.project_name, jobs: []})
                         });
 
-                        this.$http.post('http://localhost:8000/api/jobs',
-                            JSON.stringify({'user_id': this.$USER_ID}),
+                        this.$http.post(process.env.VUE_APP_DJANGO_PROTOCOL + '://' + process.env.VUE_APP_DJANGO_HOSTNAME + ':' +  process.env.VUE_APP_DJANGO_PORT + '/api/jobs',
+                            JSON.stringify({'user_id': this.$USER_ID, 'schedule_category': 'Instant'}),
                             {headers: {'Content-Type': 'application/x-www-form-urlencoded'}})
                             .then(response => {
                                 response.data.data.forEach(function (obj) {

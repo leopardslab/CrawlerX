@@ -16,22 +16,22 @@ def project_create(request):
         json_data = json.loads(request.body)
         user_id = json_data['user_id']
         project_name = json_data['project_name']
-        project_description = json_data['project_description']
         if not user_id:
-            return JsonResponse({'Error': 'Request payload does not contain user_id'})
+            return JsonResponse({'Error': 'Request payload does not contain user_id'}, status=400)
 
         if not project_name:
-            return JsonResponse({'Error': 'Request payload does not contain project_name'})
+            return JsonResponse({'Error': 'Request payload does not contain project_name'}, status=400)
 
     except JSONDecodeError:
-        return JsonResponse({'Error': 'Request payload does not contain required parameters or empty'})
+        return JsonResponse({'Error': 'Request payload does not contain required parameters or empty'}, status=400)
 
     # user Authorization
     token_header = request.headers.get('Token')
     auth = FirebaseAuth(token_header, user_id)
 
     if not auth:
-        return JsonResponse({'Error': 'User authentication failed. Please try again with a valid user login'})
+        return JsonResponse({'Error': 'User authentication failed. Please try again with a valid user login'},
+                            status=400)
 
     try:
         mongo_connection = MongoConnection()
@@ -39,9 +39,10 @@ def project_create(request):
         query = {'user_id': data_item['user_id'], 'project_name': data_item['project_name']}
         mongo_connection.upsert_item(query, data_item, "projects")
     except Exception as e:
-        return JsonResponse({'Error': 'Error while connecting to the MongoDB database, ' + str(e)})
+        return JsonResponse({'Error': 'Error while connecting to the MongoDB database, ' + str(e)}, status=400)
 
-    return JsonResponse({'status': "SUCCESS", 'message': 'project created successfully'})
+    return JsonResponse({'status': "SUCCESS", 'Message': 'Project:' + project_name + ' created successfully'})
+
 
 @csrf_exempt
 @require_http_methods(['POST'])  # only get and post
@@ -51,15 +52,15 @@ def get_projects(request):
         json_data = json.loads(request.body)
         user_id = json_data['user_id']
         if not user_id:
-            return JsonResponse({'Error': 'Request payload does not contain user_id'})
+            return JsonResponse({'Error': 'Request payload does not contain user_id'}, status=400)
 
     except JSONDecodeError:
-        return JsonResponse({'Error': 'Request payload does not contain required parameters or empty'})
+        return JsonResponse({'Error': 'Request payload does not contain required parameters or empty'}, status=400)
 
     try:
         mongo_connection = MongoConnection()
         json_data = mongo_connection.get_items("projects", {'user_id': user_id})
     except Exception as e:
-        return JsonResponse({'Error': 'Error while getting project details from the database, ' + str(e)})
+        return JsonResponse({'Error': 'Error while getting project details from the database, ' + str(e)}, status=400)
 
-    return JsonResponse({'status': "SUCCESS", 'data': json_data})
+    return JsonResponse({'Status': "SUCCESS", 'data': json_data})

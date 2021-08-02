@@ -9,24 +9,23 @@ logger = logging.getLogger('logs')
 
 class ScrapyAppPipeline:
 
-    def __init__(self, mongo_uri, mongo_db):
-        self.mongo_uri = mongo_uri
-        self.mongo_db = mongo_db
-        self.es = Elasticsearch(HOST="http://elasticsearch", PORT=9200)
+    def __init__(self, mongo_uri, mongo_db, elastic_search_uri):
+        self.client = pymongo.MongoClient(mongo_uri)
+        self.db = self.client[mongo_db]
+        self.es = Elasticsearch(hosts=elastic_search_uri)
 
     @classmethod
     def from_crawler(cls, crawler):
         return cls(
-            mongo_uri=crawler.settings.get('MONGO_URI'),
-            mongo_db=crawler.settings.get('MONGO_DATABASE')
+            mongo_uri=crawler.settings.get('MONGODB_URI'),
+            mongo_db=crawler.settings.get('MONGODB_DATABASE'),
+            elastic_search_uri=crawler.settings.get('ELASTIC_SEARCH_URI')
         )
 
     def open_spider(self, spider):
         # initializing spider
         # opening db connection
         try:
-            self.client = pymongo.MongoClient(self.mongo_uri)
-            self.db = self.client[self.mongo_db]
             logger.debug("Connection has been established to the MongoDB client")
         except Exception as e:
             logger.debug("Error while connecting to the MongoDB client" + str(e))
@@ -37,7 +36,7 @@ class ScrapyAppPipeline:
         self.es.close()
 
     def process_item(self, item, spider):
-        query = {'unique_id': item['unique_id'], 'user_id': item['user_id'],
+        query = {'unique_id': item['unique_id'], 'user_id': item['user_id'], 'schedule_time': item['schedule_time'],
                  'task_id': item['task_id'], 'job_name': item['job_name'], 'project_name': item['project_name']}
 
         # name of the all crawled data stored collection
@@ -54,7 +53,7 @@ class ScrapyAppPipeline:
 
             # add data into the elastic search
             try:
-                element_id = item['unique_id'].lower() + '-' + item['task_id'].lower()
+                element_id = item['unique_id'].lower() + '-' + item['task_id'].lower() + '-' + item['schedule_time']
                 index = item['user_id'].lower()
                 index_exists = self.es.indices.exists(index=index)
 

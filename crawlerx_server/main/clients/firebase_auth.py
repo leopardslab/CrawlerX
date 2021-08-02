@@ -1,5 +1,7 @@
 import requests
 
+from crawlerx_server.settings import FIREBASE_APP_KEY
+
 
 class FirebaseAuth:
 
@@ -9,7 +11,7 @@ class FirebaseAuth:
 
     def check_user_validity(self):
         try:
-            url = 'https://identitytoolkit.googleapis.com/v1/accounts:lookup?key=AIzaSyD88ucXoxhnfm3iNUA-FJ-zg-0GrJKT-Zo'
+            url = 'https://identitytoolkit.googleapis.com/v1/accounts:lookup?key=' + FIREBASE_APP_KEY
             data = '{  "idToken": " ' + self.token_id + '" }'
 
             response = requests.post(url, data=data, headers={"Content-Type": "application/json"})

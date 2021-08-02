@@ -31,7 +31,7 @@
             }
         }, methods: {
             getAnalysisByQuery: function () {
-                this.$http.post('http://localhost:8000/api/elasticdata',
+                this.$http.post(process.env.VUE_APP_DJANGO_PROTOCOL + '://' + process.env.VUE_APP_DJANGO_HOSTNAME + ':' +  process.env.VUE_APP_DJANGO_PORT + '/api/elasticdata',
                     JSON.stringify({'user_id': this.$USER_ID, 'query': this.query}),
                     {headers: {'Content-Type': 'application/x-www-form-urlencoded'}})
                     .then(response => {

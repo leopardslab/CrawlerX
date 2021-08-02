@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-
+import environ
 # Scrapy settings for scrapy_app project
 #
 # For simplicity, this file contains only settings considered important or
@@ -8,6 +8,10 @@
 #     https://docs.scrapy.org/en/latest/topics/settings.html
 #     https://docs.scrapy.org/en/latest/topics/downloader-middleware.html
 #     https://docs.scrapy.org/en/latest/topics/spider-middleware.html
+
+# Initialise environment variables
+env = environ.Env()
+environ.Env.read_env()
 
 BOT_NAME = 'scrapy_app'
 
@@ -68,14 +72,21 @@ ITEM_PIPELINES = {
    'scrapy_app.pipelines.ScrapyAppPipeline': 200,
 }
 
-HTTPERROR_ALLOWED_CODES = [404,403]
+HTTPERROR_ALLOWED_CODES = [404, 403]
 
-MONGO_URI = 'mongodb://mongodb:27017'
-MONGO_DATABASE = 'crawlerx_db'
+# MongoDB credentials
+MONGODB_HOSTNAME = env('MONGODB_HOSTNAME')
+MONGODB_PORT = env('MONGODB_PORT')
+MONGODB_DATABASE = env('MONGODB_DATABASE')
+MONGODB_URI = 'mongodb://' + MONGODB_HOSTNAME + ':' + MONGODB_PORT
 
-# ELASTIC_SEARCH_URI = "http://localhost"
-# ELASTIC_SEARCH_PORT = 9200
-
+# Elastic Search secrets
+ELASTIC_SEARCH_USERNAME = env('ELASTIC_SEARCH_USERNAME')
+ELASTIC_SEARCH_PASSWORD = env('ELASTIC_SEARCH_PASSWORD')
+ELASTIC_SEARCH_HOSTNAME = env('ELASTIC_SEARCH_HOSTNAME')
+ELASTIC_SEARCH_PORT = env('ELASTIC_SEARCH_PORT')
+ELASTIC_SEARCH_URI = 'http://' + ELASTIC_SEARCH_USERNAME + ':' + ELASTIC_SEARCH_PASSWORD + '@' \
+                     + ELASTIC_SEARCH_HOSTNAME + ':' + ELASTIC_SEARCH_PORT
 
 # Enable and configure the AutoThrottle extension (disabled by default)
 # See https://docs.scrapy.org/en/latest/topics/autothrottle.html

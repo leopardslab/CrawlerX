@@ -8,7 +8,10 @@ import firebase from "firebase/app";
 import "firebase/auth";
 import Projects from "../components/Contents/Projects";
 import Jobs from "../components/Contents/Jobs";
+import IntervalJobs from "../components/Contents/IntervalJobs";
+import CronJobs from "../components/Contents/CronJobs";
 import JobData from "../components/Contents/JobData";
+import ScheduleJobData from "../components/Contents/ScheduleJobData";
 import ELKAnalysis from "../components/Contents/ELKAnalysis";
 
 Vue.use(Router);
@@ -46,10 +49,22 @@ const router = new Router({
           component: Jobs,
         },
         {
+          path: "interval-jobs",
+          component: IntervalJobs,
+        },
+        {
+          path: "cron-jobs",
+          component: CronJobs,
+        },
+        {
           // UserPosts will be rendered inside User's <router-view>
           // when /user/:id/posts is matched
           path: "job/:jobId",
           component: JobData,
+        },
+        {
+          path: "schedule-job/:taskId",
+          component: ScheduleJobData,
         },
         {
           // UserPosts will be rendered inside User's <router-view>

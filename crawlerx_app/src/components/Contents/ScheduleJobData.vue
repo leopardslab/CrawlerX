@@ -1,10 +1,10 @@
-<template xmlns:v-slot="http://www.w3.org/1999/XSL/Transform">
+<template>
   <b-container fluid>
     <b-row>
       <b-col cols="12" class="mt-5">
         <h5>
-          <b>Job Id:</b>
-          {{this.$route.params.jobId}}
+          <b>Task Id:</b>
+          {{this.$route.params.taskId}}
         </h5>
         <b-button
           variant="outline-info"
@@ -25,9 +25,6 @@
           :head-variant="headVariant"
           :items="jobData"
         >
-          <template v-slot:cell(url)="data">
-            <b-link :href="data.value" target="_blank">{{data.value}}</b-link>
-          </template>
           <template #cell(status)="row">
             <center>
               <b-icon v-if="row.value == 'COMPLETED'" icon="check-circle-fill" style="color:green;"></b-icon>
@@ -116,6 +113,7 @@ export default {
       bordered: true,
       jobData: [],
       taskId: null,
+      jobId: null,
       jobStatus: null,
       crawledData: null,
       crawledDataJson: null,
@@ -160,17 +158,18 @@ export default {
       this.$http.post(process.env.VUE_APP_DJANGO_PROTOCOL + "://" + process.env.VUE_APP_DJANGO_HOSTNAME + ":" +  process.env.VUE_APP_DJANGO_PORT + "/api/job",
           JSON.stringify({
             user_id: this.$USER_ID,
-            unique_id: this.$route.params.jobId,
+            task_id: this.$route.params.taskId,
           }),
           { headers: { "Content-Type": "application/x-www-form-urlencoded" } }
         )
         .then((response) => {
           let project = [];
           let objectTaskId = null;
+          let objectJobId = null;
           let objectTaskStatus = null;
           response.data.data.forEach(function (obj) {
-            console.log(obj);
             objectTaskId = obj.task_id;
+            objectJobId = obj.unique_id;
             if (
               objectTaskId === undefined ||
               objectTaskId == null ||
@@ -183,7 +182,7 @@ export default {
               job_name: obj.job_name,
               task_id: objectTaskId,
               URL: obj.url,
-              schedule_at: new Date(1000 * obj.schedule_time).toLocaleString(),
+              Scheduled_At: new Date(1000 * obj.schedule_time).toLocaleString(),
               crawler_type: obj.crawler_name,
               status: obj.status,
             });
@@ -191,12 +190,13 @@ export default {
           });
           this.taskId = objectTaskId;
           this.jobStatus = objectTaskStatus;
+          this.jobId = objectJobId;
 
           if (this.taskId !== null && this.jobStatus === "COMPLETED") {
             this.$http.post(process.env.VUE_APP_DJANGO_PROTOCOL + "://" + process.env.VUE_APP_DJANGO_HOSTNAME + ":" +  process.env.VUE_APP_DJANGO_PORT + "/api/job/crawl_data",
                 JSON.stringify({
                   user_id: this.$USER_ID,
-                  unique_id: this.$route.params.jobId,
+                  unique_id: this.jobId,
                   task_id: this.taskId,
                 }),
                 {
