@@ -1,7 +1,8 @@
-import os
 import re
 import unicodedata
 from scrapy.spiders import CrawlSpider
+
+from scrapy_app.spider_common import common_parser
 
 
 class WikipediaSpider(CrawlSpider):
@@ -17,15 +18,7 @@ class WikipediaSpider(CrawlSpider):
         super(WikipediaSpider, self).__init__(*args, **kwargs)
 
     def parse(self, response):
-        parsed_item = dict()
-        parsed_settings = dict(self.settings)
-        parsed_item['user_id'] = parsed_settings['user_id']
-        parsed_item['project_name'] = parsed_settings['project_name']
-        parsed_item['job_name'] = parsed_settings['job_name']
-        parsed_item['unique_id'] = parsed_settings['unique_id']
-        parsed_item['schedule_time'] = parsed_settings['schedule_time']
-        parsed_item['task_id'] = os.environ['SCRAPY_JOB']
-
+        parsed_item = common_parser(self.settings)
         crawled_data = []
         def _clean(value):
             value = ' '.join(value)

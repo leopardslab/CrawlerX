@@ -1,5 +1,19 @@
+import os
 import re
 from scrapy.selector import Selector
+
+
+def common_parser(settings):
+    parsed_item = dict()
+    parsed_settings = dict(settings)
+    parsed_item['user_id'] = parsed_settings['user_id']
+    parsed_item['project_name'] = parsed_settings['project_name']
+    parsed_item['job_name'] = parsed_settings['job_name']
+    parsed_item['unique_id'] = parsed_settings['unique_id']
+    parsed_item['schedule_time'] = parsed_settings['schedule_time']
+    parsed_item['task_id'] = os.environ['SCRAPY_JOB']
+    return parsed_item
+
 
 @staticmethod
 def extract_item(sels):
