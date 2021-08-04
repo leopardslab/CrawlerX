@@ -23,12 +23,13 @@ spec:
         version: "current"
     spec:
       containers:
-      - name: "crawlerx_web_appication"
+      - name: "crawlerx_django_appication"
         {{- if .Values.crawlerx.deployment.backend.dockerRegistry }}
         image: "{{ .Values.crawlerx.deployment.backend.dockerRegistry }}/{{ .Values.crawlerx.deployment.backend.imageName }}:{{ .Values.crawlerx.deployment.backend.imageTag }}"
         {{- else }}
         image: "{{ .Values.crawlerx.deployment.backend.imageName }}:{{ .Values.crawlerx.deployment.backend.imageTag }}"
         {{ end }}
+        command: ["python3", "manage.py", "runserver", "0.0.0.0:8000"]
         imagePullPolicy: Always
         ports:
         - containerPort: 8000
@@ -49,7 +50,6 @@ spec:
         envFrom:
           - configMapRef:
               name: {{ include "crawlerx_helm.fullname" . }}-backend-configs
-        {{- if .Values.image.livenessProbe }}
         livenessProbe:
           exec:
             command:
