@@ -172,4 +172,18 @@ rabbitmq:
     enabled: true
     hostname: broker.crawlerx
     path: "/"
-        
+
+# Refer this to add more parameters https://artifacthub.io/packages/helm/elastic/elasticsearch/7.8.1
+elasticsearch:
+  replicaCount: 1
+  extraEnvs:
+    - name: ELASTIC_PASSWORD
+      value: admin
+    - name: ELASTIC_USERNAME
+      value: admin
+    - name: discovery.type
+      value: single-node
+  httpPort: 9200     
+  service:
+    type: ClusterIP
+    httpPortName: "http"   
