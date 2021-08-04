@@ -46,7 +46,6 @@ spec:
             value: {{ $val | quote }}
           {{- end }}
         {{- end }}
-        {{- if .Values.image.livenessProbe }}
         livenessProbe:
           exec:
             command:

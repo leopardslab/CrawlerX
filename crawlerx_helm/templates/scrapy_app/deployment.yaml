@@ -23,7 +23,7 @@ spec:
         version: "current"
     spec:
       containers:
-      - name: "crawlerx_web_appication"
+      - name: "crawlerx_scrapy_appication"
         {{- if .Values.crawlerx.deployment.scrapyApp.dockerRegistry }}
         image: "{{ .Values.crawlerx.deployment.scrapyApp.dockerRegistry }}/{{ .Values.crawlerx.deployment.scrapyApp.imageName }}:{{ .Values.crawlerx.deployment.scrapyApp.imageTag }}"
         {{- else }}
@@ -48,8 +48,7 @@ spec:
         {{- end }}
         envFrom:
           - configMapRef:
-              name: {{ include "crawlerx_helm.fullname" . }}-backend-configs
-        {{- if .Values.image.livenessProbe }}
+              name: {{ include "crawlerx_helm.fullname" . }}-scrapy-configs
         livenessProbe:
           exec:
             command:
