@@ -131,6 +131,40 @@ crawlerx:
       envs:
       #  ENV_NAME: ENV_VALUE  
 
+    celery:
+      # dockerRegistry: ""
+      imageName: "scorelabs/crawlerx-backend"
+      imageTag: "1.0.0"
+      # imagePullSecrets: secret
+      # Number of celery executor deployment replicas
+      beat:
+        replicas: 1
+      # Number of celery worker deployment replicas
+      # Increase this number in order to increase the worker nodes in the cluster
+      worker:  
+        replicas: 1
+      strategy:
+        rollingUpdate:
+          # The maximum number of pods that can be scheduled above the desired number of pods.
+          maxSurge: 1
+          # The maximum number of pods that can be unavailable during the update.
+          maxUnavailable: 0
+      # These are the minimum resource recommendations      
+      resources:
+        requests:
+          # The minimum amount of memory that should be allocated for a Pod
+          memory: "512Mi"
+          # The minimum amount of CPU that should be allocated for a Pod
+          cpu: "400m"
+        limits:
+          # The maximum amount of memory that should be allocated for a Pod
+          memory: "1Gi"
+          # The maximum amount of CPU that should be allocated for a Pod
+          cpu: "1000m"
+      # Environment variables for the deployment.
+      envs:
+      #  ENV_NAME: ENV_VALUE  
+
   # Ingress level values for the CrawlerX deployments
   ingress:
     webApp:
