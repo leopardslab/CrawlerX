@@ -177,6 +177,7 @@ crawlerx:
           nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
         servicePort: 8080  
 
+  # Environment variables of the system
   env:
     webApp:
       VUE_APP_FIREBASE_API_KEY: "AIzaSyD88ucXoxhnfm3iNUA-FJ-zg-0GrJKT-Zo"
@@ -188,20 +189,25 @@ crawlerx:
       VUE_APP_FIREBASE_APP_ID: "1:811171439353:web:64e84b4fc347a5c37eb828"
       VUE_APP_FIREBASE_MEASURMENT_ID: "G-CM2MX0CRRC"
       VUE_APP_DJANGO_PROTOCOL: "http"
-      VUE_APP_DJANGO_HOSTNAME: "django"
+      #VUE_APP_DJANGO_HOSTNAME: "django"
       VUE_APP_DJANGO_PORT: "8000"
+
+    backend:
+      DJANGO_ADMIN_USERNAME: admin
+      DJANGO_ADMIN_PASSWORD: admin
+      DJANGO_ADMIN_EMAIL: admin@scorelab.org
+
+    elasticsearch:
+      ELASTIC_SEARCH_USERNAME: admin
+      ELASTIC_SEARCH_PASSWORD: admin
 
 # Refer this to add more parameters https://artifacthub.io/packages/helm/bitnami/mongodb
 mongodb:
   replicaCount: 1
   auth:
-    enabled: true
-    rootPassword: "crawlerxroot"
-    username: "crawlerx"
-    password: "crawlerx"
     database: "crawlerx_db"
   service:
-    nameOverride: ""
+    nameOverride: "mongodb-service"
     type: ClusterIP
     port: 27017
 
@@ -224,6 +230,7 @@ rabbitmq:
 # Refer this to add more parameters https://artifacthub.io/packages/helm/elastic/elasticsearch/7.8.1
 elasticsearch:
   replicaCount: 1
+  masterService: "elasticsearch-service"
   extraEnvs:
     - name: ELASTIC_PASSWORD
       value: admin

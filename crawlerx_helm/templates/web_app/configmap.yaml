@@ -13,5 +13,5 @@ data:
   VUE_APP_FIREBASE_APP_ID: {{ .Values.crawlerx.env.webApp.VUE_APP_FIREBASE_APP_ID }}
   VUE_APP_FIREBASE_MEASURMENT_ID: {{ .Values.crawlerx.env.webApp.VUE_APP_FIREBASE_MEASURMENT_ID }}
   VUE_APP_DJANGO_PROTOCOL: {{ .Values.crawlerx.env.webApp.VUE_APP_DJANGO_PROTOCOL }}
-  VUE_APP_DJANGO_HOSTNAME: {{ .Values.crawlerx.env.webApp.VUE_APP_DJANGO_HOSTNAME }}
+  VUE_APP_DJANGO_HOSTNAME: {{ include "crawlerx_helm.fullname" . }}-backend-service
   VUE_APP_DJANGO_PORT: {{ .Values.crawlerx.env.webApp.VUE_APP_DJANGO_PORT }}

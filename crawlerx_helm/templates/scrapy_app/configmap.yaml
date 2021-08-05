@@ -4,5 +4,10 @@ kind: "ConfigMap"
 metadata:
   name: {{ include "crawlerx_helm.fullname" . }}-scrapy-configs
 data:
-  MONGODB_URL: {{ include "crawlerx_helm.fullname" . }}-mongodb-service
-  RABBITMQ_URL: {{ include "crawlerx_helm.fullname" . }}-rabbitmq-service
+  MONGODB_HOSTNAME: {{ .Values.mongodb.service.nameOverride }}
+  MONGODB_PORT: {{ .Values.mongodb.service.port }}
+  MONGODB_DATABASE: {{ .Values.mongodb.auth.database }}
+  ELASTIC_SEARCH_USERNAME: {{ .Values.crawlerx.env.elasticsearch.ELASTIC_SEARCH_USERNAME }}
+  ELASTIC_SEARCH_PASSWORD: {{ .Values.crawlerx.env.elasticsearch.ELASTIC_SEARCH_PASSWORD }}
+  ELASTIC_SEARCH_HOSTNAME: {{ .Values.elasticsearch.masterService }}
+  ELASTIC_SEARCH_PORT: {{ .Values.elasticsearch.httpPort }}
