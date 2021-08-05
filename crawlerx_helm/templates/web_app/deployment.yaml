@@ -46,6 +46,9 @@ spec:
             value: {{ $val | quote }}
           {{- end }}
         {{- end }}
+        envFrom:
+          - configMapRef:
+              name: {{ include "crawlerx_helm.fullname" . }}-web-app-configs
         livenessProbe:
           exec:
             command:

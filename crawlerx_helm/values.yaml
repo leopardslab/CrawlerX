@@ -177,6 +177,20 @@ crawlerx:
           nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
         servicePort: 8080  
 
+  env:
+    webApp:
+      VUE_APP_FIREBASE_API_KEY: "AIzaSyD88ucXoxhnfm3iNUA-FJ-zg-0GrJKT-Zo"
+      VUE_APP_FIREBASE_AUTH_DOMAIN: "crawlerx-b2ad1.firebaseapp.com"
+      VUE_APP_FIREBASE_DB_DOMAIN: "https://crawlerx-b2ad1.firebaseio.com"
+      VUE_APP_FIREBASE_PROJECT_ID: "crawlerx-b2ad1"
+      VUE_APP_FIREBASE_STORAGE_BUCKET: "crawlerx-b2ad1.appspot.com"
+      VUE_APP_FIREBASE_MESSAGING_SENDER_ID: "811171439353"
+      VUE_APP_FIREBASE_APP_ID: "1:811171439353:web:64e84b4fc347a5c37eb828"
+      VUE_APP_FIREBASE_MEASURMENT_ID: "G-CM2MX0CRRC"
+      VUE_APP_DJANGO_PROTOCOL: "http"
+      VUE_APP_DJANGO_HOSTNAME: "django"
+      VUE_APP_DJANGO_PORT: "8000"
+
 # Refer this to add more parameters https://artifacthub.io/packages/helm/bitnami/mongodb
 mongodb:
   replicaCount: 1
