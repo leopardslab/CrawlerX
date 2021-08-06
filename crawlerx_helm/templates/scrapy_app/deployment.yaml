@@ -22,53 +22,60 @@ spec:
         app: {{ include "crawlerx_helm.fullname" . }}-scrapy-selector
         version: "current"
     spec:
+      initContainers:
+        - name: init-mongodb
+          image: busybox:1.32
+          command: ['sh', '-c', 'echo -e "Checking for the availability of MongoDB deployment"; while ! nc -z {{ .Values.mongodb.service.nameOverride }} 27017; do sleep 1; printf "-"; done; echo -e "  >> MongoDB has started";']
+        - name: init-elasticsearch
+          image: busybox:1.32
+          command: ['sh', '-c', 'echo -e "Checking for the availability of Elasticsearch deployment"; while ! nc -z {{ .Values.elasticsearch.masterService }} 9200; do sleep 1; printf "-"; done; echo -e "  >> Elasticsearch has started";']
       containers:
-      - name: "crawlerx_scrapy_appication"
-        {{- if .Values.crawlerx.deployment.scrapyApp.dockerRegistry }}
-        image: "{{ .Values.crawlerx.deployment.scrapyApp.dockerRegistry }}/{{ .Values.crawlerx.deployment.scrapyApp.imageName }}:{{ .Values.crawlerx.deployment.scrapyApp.imageTag }}"
-        {{- else }}
-        image: "{{ .Values.crawlerx.deployment.scrapyApp.imageName }}:{{ .Values.crawlerx.deployment.scrapyApp.imageTag }}"
-        {{ end }}
-        imagePullPolicy: Always
-        ports:
-        - containerPort: 6800
-        resources:
-          requests:
-            memory: {{ .Values.crawlerx.deployment.scrapyApp.resources.requests.memory }}
-            cpu: {{ .Values.crawlerx.deployment.scrapyApp.resources.requests.cpu }}
-          limits:
-            memory: {{ .Values.crawlerx.deployment.scrapyApp.resources.limits.memory }}
-            cpu: {{ .Values.crawlerx.deployment.scrapyApp.resources.limits.cpu }}
-        {{- if .Values.crawlerx.deployment.scrapyApp.envs }}
-        env:
-          {{- range $key, $val := .Values.crawlerx.deployment.scrapyApp.envs }}
-          - name: {{ $key }}
-            value: {{ $val | quote }}
+        - name: "crawlerx_scrapy_appication"
+          {{- if .Values.crawlerx.deployment.scrapyApp.dockerRegistry }}
+          image: "{{ .Values.crawlerx.deployment.scrapyApp.dockerRegistry }}/{{ .Values.crawlerx.deployment.scrapyApp.imageName }}:{{ .Values.crawlerx.deployment.scrapyApp.imageTag }}"
+          {{- else }}
+          image: "{{ .Values.crawlerx.deployment.scrapyApp.imageName }}:{{ .Values.crawlerx.deployment.scrapyApp.imageTag }}"
+          {{ end }}
+          imagePullPolicy: Always
+          ports:
+          - containerPort: 6800
+          resources:
+            requests:
+              memory: {{ .Values.crawlerx.deployment.scrapyApp.resources.requests.memory }}
+              cpu: {{ .Values.crawlerx.deployment.scrapyApp.resources.requests.cpu }}
+            limits:
+              memory: {{ .Values.crawlerx.deployment.scrapyApp.resources.limits.memory }}
+              cpu: {{ .Values.crawlerx.deployment.scrapyApp.resources.limits.cpu }}
+          {{- if .Values.crawlerx.deployment.scrapyApp.envs }}
+          env:
+            {{- range $key, $val := .Values.crawlerx.deployment.scrapyApp.envs }}
+            - name: {{ $key }}
+              value: {{ $val | quote }}
+            {{- end }}
           {{- end }}
-        {{- end }}
-        envFrom:
-          - configMapRef:
-              name: {{ include "crawlerx_helm.fullname" . }}-scrapy-configs
-        livenessProbe:
-          exec:
-            command:
-              - /bin/sh
-              - -c
-              - nc -z localhost 6800
-          initialDelaySeconds: {{ .Values.crawlerx.deployment.scrapyApp.livenessProbe.initialDelaySeconds }}
-          periodSeconds: {{ .Values.crawlerx.deployment.scrapyApp.livenessProbe.periodSeconds }}
-        readinessProbe:
-          exec:
-            command:
-              - /bin/sh
-              - -c
-              - nc -z localhost 6800
-          initialDelaySeconds: {{ .Values.crawlerx.deployment.scrapyApp.readinessProbe.initialDelaySeconds }}
-          periodSeconds: {{ .Values.crawlerx.deployment.scrapyApp.readinessProbe.periodSeconds }}
-        {{- if .Values.crawlerx.deployment.scrapyApp.imagePullSecrets }}  
-        imagePullSecrets:
-          - name: {{ .Values.crawlerx.deployment.scrapyApp.imagePullSecrets }}
-        {{- else if and (not (eq .Values.crawlerx.subscription.username "")) (not (eq .Values.crawlerx.subscription.password "")) }}
-        imagePullSecrets:
-          - name: crawlerx-deployment-secret
-        {{ end }}  
+          envFrom:
+            - configMapRef:
+                name: {{ include "crawlerx_helm.fullname" . }}-scrapy-configs
+          livenessProbe:
+            exec:
+              command:
+                - /bin/sh
+                - -c
+                - nc -z localhost 6800
+            initialDelaySeconds: {{ .Values.crawlerx.deployment.scrapyApp.livenessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.crawlerx.deployment.scrapyApp.livenessProbe.periodSeconds }}
+          readinessProbe:
+            exec:
+              command:
+                - /bin/sh
+                - -c
+                - nc -z localhost 6800
+            initialDelaySeconds: {{ .Values.crawlerx.deployment.scrapyApp.readinessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.crawlerx.deployment.scrapyApp.readinessProbe.periodSeconds }}
+      {{- if .Values.crawlerx.deployment.scrapyApp.imagePullSecrets }}  
+      imagePullSecrets:
+        - name: {{ .Values.crawlerx.deployment.scrapyApp.imagePullSecrets }}
+      {{- else if and (not (eq .Values.crawlerx.subscription.username "")) (not (eq .Values.crawlerx.subscription.password "")) }}
+      imagePullSecrets:
+        - name: crawlerx-deployment-secret
+      {{ end }}  
