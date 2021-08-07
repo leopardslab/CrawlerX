@@ -9,6 +9,8 @@ spec:
   type: ClusterIP
   ports:
   - name: http  
-    port: {{ .Values.crawlerx.ingress.webApp.service.servicePort }}
+    port: 8080
+    targetPort: 8080
+    protocol: TCP
   selector:
     app: "{{ include "crawlerx_helm.fullname" . }}-web-app-selector"
