@@ -29,7 +29,7 @@
         <b-row style="margin-top: 10px">
             <b-col cols="4">
                 <b-form-group
-                        label="Filter By Name:"
+                        label="By Name:"
                         label-for="filter-input"
                         label-cols-sm="3"
                         label-align-sm="left"
