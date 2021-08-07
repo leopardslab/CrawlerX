@@ -12,7 +12,7 @@
                 :class="{'vsm--toggle-btn_slot' : $slots['toggle-icon']}"
                 @click="onToggleClick"
         >
-            <img src="../../assets/images/logo.png" style="width:50px; padding: 10px;" />
+            <img src="../../assets/images/logo.png" style="width:170px; margin-top: -10px;" />
         </button>
         <div
                 class="vsm--scroll-wrapper"
