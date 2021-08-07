@@ -18,4 +18,4 @@ spec:
           - path: /
             backend:
               serviceName: {{ include "crawlerx_helm.fullname" . }}-web-app-service
-              servicePort: {{ .Values.crawlerx.ingress.webApp.service.servicePort }}
+              servicePort: 8080
