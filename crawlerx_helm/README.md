@@ -15,20 +15,21 @@ steps provided in the below.
 >In the context of this document,
 >* `HELM_HOME` will refer to `CrawlerX/crawlerx_helm` directory.
 
-1. Clone the Kubernetes Resources for CrawlerX Git repository.
+#### 1. Clone the Kubernetes Resources for CrawlerX Git repository.
 ```
 git clone https://github.com/leopardslab/CrawlerX.git
 ```
 
-2. Provide configurations.
+#### 2. Provide configurations.
 
 Open the `<HELM_HOME>/values.yaml` and provide the following values.
 
 | Parameter          | Description                         | Default Value               |
+|--------------------|-------------------------------------|-----------------------------|
 | crawlerx.subscription.username          |   Docker registry username                       | ""               |
 | crawlerx.subscription.password          |   Docker registry password                       | ""               |
 
-3. Deploy CrawlerX distributed crawling platform.
+#### 3. Deploy CrawlerX distributed crawling platform.
 
 - **Helm v2**
 
@@ -44,9 +45,9 @@ Open the `<HELM_HOME>/values.yaml` and provide the following values.
 
 `NAMESPACE` should be the Kubernetes Namespace in which the resources are deployed
 
-4. Access CrawlerX dashboard.
+#### 4. Access CrawlerX dashboard.
 
-a. Obtain the external IP (`EXTERNAL-IP`) of the Ingress resources by listing down the Kubernetes Ingresses.
+1. Obtain the external IP (`EXTERNAL-IP`) of the Ingress resources by listing down the Kubernetes Ingresses.
 
 ```
 kubectl get ing -n <NAMESPACE>
@@ -57,10 +58,10 @@ NAME                                            HOSTS                      ADDRE
 <RELEASE_NAME>-web-app-ingress                  app.crawlerx.com           <EXTERNAL-IP>   80        3m
 ```
 
-b. Add the above host as an entry in `/etc/hosts` file as follows:
+2. Add the above host as an entry in `/etc/hosts` file as follows:
 
 ```
 <EXTERNAL-IP>	app.crawlerx.com
 ```
 
-c. Open `http://app.crawlerx.com` to view the CrawlerX web UI in the browser.
+3. Open `http://app.crawlerx.com` to view the CrawlerX web UI in the browser.
