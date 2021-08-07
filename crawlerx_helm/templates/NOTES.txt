@@ -1,2 +1,18 @@
 Congratulations!
 CrawlerX distributed crawling web platform has been successfully installed in your environment.
+
+Please follow these steps to access CrawlerX dashboard.
+
+1. Obtain the external IP (`EXTERNAL-IP`) of the Ingress resources by listing down the Kubernetes Ingresses.
+
+kubectl get ing -n {{ .Release.Namespace }}
+
+NAME                                            HOSTS                      ADDRESS         PORTS     AGE
+{{ .Release.Namespace }}-web-app-ingress                  app.crawlerx.com           <EXTERNAL-IP>   80        3m
+
+
+2. Add the above host as an entry in `/etc/hosts` file as follows:
+
+<EXTERNAL-IP>	app.crawlerx.com
+
+3. Open `http://app.crawlerx.com` to view the CrawlerX web UI in the browser.
