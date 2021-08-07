@@ -131,6 +131,40 @@ crawlerx:
       envs:
       #  ENV_NAME: ENV_VALUE  
 
+    celery:
+      # dockerRegistry: ""
+      imageName: "scorelabs/crawlerx-backend"
+      imageTag: "1.0.0"
+      # imagePullSecrets: secret
+      # Number of celery executor deployment replicas
+      beat:
+        replicas: 1
+      # Number of celery worker deployment replicas
+      # Increase this number in order to increase the worker nodes in the cluster
+      worker:  
+        replicas: 1
+      strategy:
+        rollingUpdate:
+          # The maximum number of pods that can be scheduled above the desired number of pods.
+          maxSurge: 1
+          # The maximum number of pods that can be unavailable during the update.
+          maxUnavailable: 0
+      # These are the minimum resource recommendations      
+      resources:
+        requests:
+          # The minimum amount of memory that should be allocated for a Pod
+          memory: "512Mi"
+          # The minimum amount of CPU that should be allocated for a Pod
+          cpu: "400m"
+        limits:
+          # The maximum amount of memory that should be allocated for a Pod
+          memory: "1Gi"
+          # The maximum amount of CPU that should be allocated for a Pod
+          cpu: "1000m"
+      # Environment variables for the deployment.
+      envs:
+      #  ENV_NAME: ENV_VALUE  
+
   # Ingress level values for the CrawlerX deployments
   ingress:
     webApp:
@@ -143,17 +177,37 @@ crawlerx:
           nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
         servicePort: 8080  
 
+  # Environment variables of the system
+  env:
+    webApp:
+      VUE_APP_FIREBASE_API_KEY: "AIzaSyD88ucXoxhnfm3iNUA-FJ-zg-0GrJKT-Zo"
+      VUE_APP_FIREBASE_AUTH_DOMAIN: "crawlerx-b2ad1.firebaseapp.com"
+      VUE_APP_FIREBASE_DB_DOMAIN: "https://crawlerx-b2ad1.firebaseio.com"
+      VUE_APP_FIREBASE_PROJECT_ID: "crawlerx-b2ad1"
+      VUE_APP_FIREBASE_STORAGE_BUCKET: "crawlerx-b2ad1.appspot.com"
+      VUE_APP_FIREBASE_MESSAGING_SENDER_ID: "811171439353"
+      VUE_APP_FIREBASE_APP_ID: "1:811171439353:web:64e84b4fc347a5c37eb828"
+      VUE_APP_FIREBASE_MEASURMENT_ID: "G-CM2MX0CRRC"
+      VUE_APP_DJANGO_PROTOCOL: "http"
+      #VUE_APP_DJANGO_HOSTNAME: "django"
+      VUE_APP_DJANGO_PORT: "8000"
+
+    backend:
+      DJANGO_ADMIN_USERNAME: admin
+      DJANGO_ADMIN_PASSWORD: admin
+      DJANGO_ADMIN_EMAIL: admin@scorelab.org
+
+    elasticsearch:
+      ELASTIC_SEARCH_USERNAME: admin
+      ELASTIC_SEARCH_PASSWORD: admin
+
 # Refer this to add more parameters https://artifacthub.io/packages/helm/bitnami/mongodb
 mongodb:
   replicaCount: 1
   auth:
-    enabled: true
-    rootPassword: "crawlerxroot"
-    username: "crawlerx"
-    password: "crawlerx"
     database: "crawlerx_db"
   service:
-    nameOverride: ""
+    nameOverride: "mongodb-service"
     type: ClusterIP
     port: 27017
 
@@ -172,4 +226,19 @@ rabbitmq:
     enabled: true
     hostname: broker.crawlerx
     path: "/"
-        
+
+# Refer this to add more parameters https://artifacthub.io/packages/helm/elastic/elasticsearch/7.8.1
+elasticsearch:
+  replicaCount: 1
+  masterService: "elasticsearch-service"
+  extraEnvs:
+    - name: ELASTIC_PASSWORD
+      value: admin
+    - name: ELASTIC_USERNAME
+      value: admin
+    - name: discovery.type
+      value: single-node
+  httpPort: 9200     
+  service:
+    type: ClusterIP
+    httpPortName: "http"   

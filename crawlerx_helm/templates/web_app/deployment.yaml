@@ -22,51 +22,57 @@ spec:
         app: {{ include "crawlerx_helm.fullname" . }}-web-app-selector
         version: "current"
     spec:
+      initContainers:
+        - name: init-web-app
+          image: busybox:1.32
+          command: ['sh', '-c', 'echo -e "Checking for the availability of Django backend server"; while ! nc -z {{ include "crawlerx_helm.fullname" . }}-backend-service 8000; do sleep 1; printf "-"; done; echo -e "  >> Django backend server has started";']
       containers:
-      - name: "crawlerx_web_appication"
-        {{- if .Values.crawlerx.deployment.webApp.dockerRegistry }}
-        image: "{{ .Values.crawlerx.deployment.webApp.dockerRegistry }}/{{ .Values.crawlerx.deployment.webApp.imageName }}:{{ .Values.crawlerx.deployment.webApp.imageTag }}"
-        {{- else }}
-        image: "{{ .Values.crawlerx.deployment.webApp.imageName }}:{{ .Values.crawlerx.deployment.webApp.imageTag }}"
-        {{ end }}
-        imagePullPolicy: Always
-        ports:
-        - containerPort: {{ .Values.crawlerx.ingress.webApp.service.servicePort }}
-        resources:
-          requests:
-            memory: {{ .Values.crawlerx.deployment.webApp.resources.requests.memory }}
-            cpu: {{ .Values.crawlerx.deployment.webApp.resources.requests.cpu }}
-          limits:
-            memory: {{ .Values.crawlerx.deployment.webApp.resources.limits.memory }}
-            cpu: {{ .Values.crawlerx.deployment.webApp.resources.limits.cpu }}
-        {{- if .Values.crawlerx.deployment.webApp.envs }}
-        env:
-          {{- range $key, $val := .Values.crawlerx.deployment.webApp.envs }}
-          - name: {{ $key }}
-            value: {{ $val | quote }}
+        - name: "crawlerx_web_appication"
+          {{- if .Values.crawlerx.deployment.webApp.dockerRegistry }}
+          image: "{{ .Values.crawlerx.deployment.webApp.dockerRegistry }}/{{ .Values.crawlerx.deployment.webApp.imageName }}:{{ .Values.crawlerx.deployment.webApp.imageTag }}"
+          {{- else }}
+          image: "{{ .Values.crawlerx.deployment.webApp.imageName }}:{{ .Values.crawlerx.deployment.webApp.imageTag }}"
+          {{ end }}
+          imagePullPolicy: Always
+          ports:
+          - containerPort: {{ .Values.crawlerx.ingress.webApp.service.servicePort }}
+          resources:
+            requests:
+              memory: {{ .Values.crawlerx.deployment.webApp.resources.requests.memory }}
+              cpu: {{ .Values.crawlerx.deployment.webApp.resources.requests.cpu }}
+            limits:
+              memory: {{ .Values.crawlerx.deployment.webApp.resources.limits.memory }}
+              cpu: {{ .Values.crawlerx.deployment.webApp.resources.limits.cpu }}
+          {{- if .Values.crawlerx.deployment.webApp.envs }}
+          env:
+            {{- range $key, $val := .Values.crawlerx.deployment.webApp.envs }}
+            - name: {{ $key }}
+              value: {{ $val | quote }}
+            {{- end }}
           {{- end }}
-        {{- end }}
-        {{- if .Values.image.livenessProbe }}
-        livenessProbe:
-          exec:
-            command:
-              - /bin/sh
-              - -c
-              - nc -z localhost 8080
-          initialDelaySeconds: {{ .Values.crawlerx.deployment.webApp.livenessProbe.initialDelaySeconds }}
-          periodSeconds: {{ .Values.crawlerx.deployment.webApp.livenessProbe.periodSeconds }}
-        readinessProbe:
-          exec:
-            command:
-              - /bin/sh
-              - -c
-              - nc -z localhost 8080
-          initialDelaySeconds: {{ .Values.crawlerx.deployment.webApp.readinessProbe.initialDelaySeconds }}
-          periodSeconds: {{ .Values.crawlerx.deployment.webApp.readinessProbe.periodSeconds }}
-        {{- if .Values.crawlerx.deployment.webApp.imagePullSecrets }}  
-        imagePullSecrets:
-          - name: {{ .Values.crawlerx.deployment.webApp.imagePullSecrets }}
-        {{- else if and (not (eq .Values.crawlerx.subscription.username "")) (not (eq .Values.crawlerx.subscription.password "")) }}
-        imagePullSecrets:
-          - name: crawlerx-deployment-secret
-        {{ end }}  
+          envFrom:
+            - configMapRef:
+                name: {{ include "crawlerx_helm.fullname" . }}-web-app-configs
+          livenessProbe:
+            exec:
+              command:
+                - /bin/sh
+                - -c
+                - nc -z localhost 8080
+            initialDelaySeconds: {{ .Values.crawlerx.deployment.webApp.livenessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.crawlerx.deployment.webApp.livenessProbe.periodSeconds }}
+          readinessProbe:
+            exec:
+              command:
+                - /bin/sh
+                - -c
+                - nc -z localhost 8080
+            initialDelaySeconds: {{ .Values.crawlerx.deployment.webApp.readinessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.crawlerx.deployment.webApp.readinessProbe.periodSeconds }}
+      {{- if .Values.crawlerx.deployment.webApp.imagePullSecrets }}  
+      imagePullSecrets:
+        - name: {{ .Values.crawlerx.deployment.webApp.imagePullSecrets }}
+      {{- else if and (not (eq .Values.crawlerx.subscription.username "")) (not (eq .Values.crawlerx.subscription.password "")) }}
+      imagePullSecrets:
+        - name: crawlerx-deployment-secret
+      {{ end }}  

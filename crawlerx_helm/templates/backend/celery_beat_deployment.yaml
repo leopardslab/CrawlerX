@@ -1,0 +1,61 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "crawlerx_helm.fullname" . }}-celery-beat-deployment
+  namespace: {{ .Release.Namespace }}
+  labels:
+    chart: '{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}'
+spec:
+  replicas: {{ .Values.crawlerx.deployment.celery.beat.replicas }}
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: {{ .Values.crawlerx.deployment.celery.strategy.rollingUpdate.maxSurge }}
+      maxSurge: {{ .Values.crawlerx.deployment.celery.strategy.rollingUpdate.maxSurge }}
+  selector:
+    matchLabels:
+      app: {{ include "crawlerx_helm.fullname" . }}-celery-beat-selector
+      version: "current"
+  template:
+    metadata:
+      labels:
+        app: {{ include "crawlerx_helm.fullname" . }}-celery-beat-selector
+        version: "current"
+    spec:
+      initContainers:
+        - name: init-rabbitmq
+          image: busybox:1.32
+          command: ['sh', '-c', 'echo -e "Checking for the availability of RabbitMQ broker deployment"; while ! nc -z {{ .Release.Name }}-rabbitmq 5672; do sleep 1; printf "-"; done; echo -e "  >> RabbitMQ broker has started";']
+      containers:
+        - name: "crawlerx_celery_beat_appication"
+          {{- if .Values.crawlerx.deployment.celery.dockerRegistry }}
+          image: "{{ .Values.crawlerx.deployment.celery.dockerRegistry }}/{{ .Values.crawlerx.deployment.celery.imageName }}:{{ .Values.crawlerx.deployment.celery.imageTag }}"
+          {{- else }}
+          image: "{{ .Values.crawlerx.deployment.celery.imageName }}:{{ .Values.crawlerx.deployment.celery.imageTag }}"
+          {{ end }}
+          command: "python3", '-m', "celery", "-A", "crawlerx_server", "beat", "-l", "info"]
+          imagePullPolicy: Always
+          resources:
+            requests:
+              memory: {{ .Values.crawlerx.deployment.celery.resources.requests.memory }}
+              cpu: {{ .Values.crawlerx.deployment.celery.resources.requests.cpu }}
+            limits:
+              memory: {{ .Values.crawlerx.deployment.celery.resources.limits.memory }}
+              cpu: {{ .Values.crawlerx.deployment.celery.resources.limits.cpu }}
+          {{- if .Values.crawlerx.deployment.celery.envs }}
+          env:
+            {{- range $key, $val := .Values.crawlerx.deployment.celery.envs }}
+            - name: {{ $key }}
+              value: {{ $val | quote }}
+            {{- end }}
+          {{- end }}
+          envFrom:
+            - configMapRef:
+                name: {{ include "crawlerx_helm.fullname" . }}-celery-configs
+      {{- if .Values.crawlerx.deployment.celery.imagePullSecrets }}  
+      imagePullSecrets:
+        - name: {{ .Values.crawlerx.deployment.celery.imagePullSecrets }}
+      {{- else if and (not (eq .Values.crawlerx.subscription.username "")) (not (eq .Values.crawlerx.subscription.password "")) }}
+      imagePullSecrets:
+        - name: crawlerx-deployment-secret
+      {{ end }}  
