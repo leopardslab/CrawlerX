@@ -30,7 +30,7 @@ spec:
           image: busybox:1.32
           command: ['sh', '-c', 'echo -e "Checking for the availability of Elasticsearch deployment"; while ! nc -z {{ .Values.elasticsearch.masterService }} 9200; do sleep 1; printf "-"; done; echo -e "  >> Elasticsearch has started";']
       containers:
-        - name: "crawlerx_django_appication"
+        - name: "crawlerx-django-appication"
           {{- if .Values.crawlerx.deployment.backend.dockerRegistry }}
           image: "{{ .Values.crawlerx.deployment.backend.dockerRegistry }}/{{ .Values.crawlerx.deployment.backend.imageName }}:{{ .Values.crawlerx.deployment.backend.imageTag }}"
           {{- else }}

@@ -30,7 +30,7 @@ spec:
           image: busybox:1.32
           command: ['sh', '-c', 'echo -e "Checking for the availability of Scrapy server deployment"; while ! nc -z {{ include "crawlerx_helm.fullname" . }}-scrapy-service 6800; do sleep 1; printf "-"; done; echo -e "  >> Scrapy server has started";']
       containers:
-        - name: "crawlerx_celery_worker_appication"
+        - name: "crawlerx-celery-worker-appication"
           {{- if .Values.crawlerx.deployment.celery.dockerRegistry }}
           image: "{{ .Values.crawlerx.deployment.celery.dockerRegistry }}/{{ .Values.crawlerx.deployment.celery.imageName }}:{{ .Values.crawlerx.deployment.celery.imageTag }}"
           {{- else }}

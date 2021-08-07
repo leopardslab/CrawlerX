@@ -27,7 +27,7 @@ spec:
           image: busybox:1.32
           command: ['sh', '-c', 'echo -e "Checking for the availability of Django backend server"; while ! nc -z {{ include "crawlerx_helm.fullname" . }}-backend-service 8000; do sleep 1; printf "-"; done; echo -e "  >> Django backend server has started";']
       containers:
-        - name: "crawlerx_web_appication"
+        - name: "crawlerx-web-appication"
           {{- if .Values.crawlerx.deployment.webApp.dockerRegistry }}
           image: "{{ .Values.crawlerx.deployment.webApp.dockerRegistry }}/{{ .Values.crawlerx.deployment.webApp.imageName }}:{{ .Values.crawlerx.deployment.webApp.imageTag }}"
           {{- else }}
@@ -35,7 +35,7 @@ spec:
           {{ end }}
           imagePullPolicy: Always
           ports:
-          - containerPort: {{ .Values.crawlerx.ingress.webApp.service.servicePort }}
+          - containerPort: 8080
           resources:
             requests:
               memory: {{ .Values.crawlerx.deployment.webApp.resources.requests.memory }}
