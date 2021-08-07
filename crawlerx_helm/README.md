@@ -145,13 +145,15 @@ Open the `<HELM_HOME>/values.yaml` and provide the following values.
 - **Helm v2**
 
     ```
+    kubectl create ns <NAMESPACE>
+    helm dependency update
     helm install --name <RELEASE_NAME> <HELM_HOME> --namespace <NAMESPACE>
     ```
 
 - **Helm v3**
  
     ```
-    helm install <RELEASE_NAME> <HELM_HOME> --namespace <NAMESPACE>
+    helm install <RELEASE_NAME> <HELM_HOME> --namespace <NAMESPACE> --dependency-update --create-namespace
     ```
 
 `NAMESPACE` should be the Kubernetes Namespace in which the resources are deployed
