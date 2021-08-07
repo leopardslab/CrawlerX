@@ -10,6 +10,8 @@ steps provided in the below.
 
 * Install [NGINX Ingress Controller](https://kubernetes.github.io/ingress-nginx/deploy/). You can find the Git release [`nginx-0.30.0`](https://github.com/kubernetes/ingress-nginx/releases/tag/nginx-0.30.0) here.
 
+![Helm Deployment](../resources/helm.png)
+
 ## Quick Start Guide
 
 >In the context of this document,
