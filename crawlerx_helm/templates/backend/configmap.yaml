@@ -9,16 +9,18 @@ data:
   DJANGO_ADMIN_EMAIL: {{ .Values.crawlerx.env.backend.DJANGO_ADMIN_EMAIL }}
   FIREBASE_APP_KEY: {{ .Values.crawlerx.env.webApp.VUE_APP_FIREBASE_API_KEY }}
   MONGODB_HOSTNAME: {{ .Values.mongodb.service.nameOverride }}
-  MONGODB_PORT: {{ .Values.mongodb.service.port }}
-  MONGODB_DATABASE: {{ .Values.mongodb.auth.database }}
+  MONGODB_PORT: {{ .Values.mongodb.service.port | quote}}
+  {{ with index .Values.mongodb.extraEnvVars 0 }}
+  MONGODB_DATABASE: {{ .value }}
+  {{ end }}
   CELERY_BROKER_USERNAME: {{ .Values.rabbitmq.auth.username }}
   CELERY_BROKER_PASSWORD: {{ .Values.rabbitmq.auth.password }}
   CELERY_BROKER_HOSTNAME: {{ .Release.Name }}-rabbitmq
-  CELERY_BROKER_PORT: {{ .Values.rabbitmq.service.port }}
+  CELERY_BROKER_PORT: {{ .Values.rabbitmq.service.port | quote }}
   ELASTIC_SEARCH_USERNAME: {{ .Values.crawlerx.env.elasticsearch.ELASTIC_SEARCH_USERNAME }}
   ELASTIC_SEARCH_PASSWORD: {{ .Values.crawlerx.env.elasticsearch.ELASTIC_SEARCH_PASSWORD }}
   ELASTIC_SEARCH_HOSTNAME: {{ .Values.elasticsearch.masterService }}
-  ELASTIC_SEARCH_PORT: {{ .Values.elasticsearch.httpPort }}
+  ELASTIC_SEARCH_PORT: {{ .Values.elasticsearch.httpPort | quote }}
   SCRAPY_API_HOSTNAME: {{ include "crawlerx_helm.fullname" . }}-scrapy-service
-  SCRAPY_API_PORT: 6800
+  SCRAPY_API_PORT: "6800"
   

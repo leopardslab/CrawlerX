@@ -10,5 +10,7 @@ spec:
   ports:
   - name: http  
     port: 8000
+    targetPort: 8000
+    protocol: TCP
   selector:
     app: "{{ include "crawlerx_helm.fullname" . }}-backend-selector"

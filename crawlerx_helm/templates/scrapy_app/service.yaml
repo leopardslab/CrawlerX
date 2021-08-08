@@ -10,5 +10,7 @@ spec:
   ports:
   - name: http  
     port: 6800
+    targetPort: 6800
+    protocol: TCP
   selector:
     app: "{{ include "crawlerx_helm.fullname" . }}-scrapy-selector"
