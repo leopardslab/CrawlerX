@@ -158,6 +158,8 @@ Open the `<HELM_HOME>/values.yaml` and provide the following values.
 
 `NAMESPACE` should be the Kubernetes Namespace in which the resources are deployed
 
+![Helm Deployment](https://github.com/leopardslab/CrawlerX/blob/master/resources/helm/helm_5.png)
+
 #### 4. Access CrawlerX dashboard.
 
 1. Obtain the external IP (`EXTERNAL-IP`) of the Ingress resources by listing down the Kubernetes Ingresses.
@@ -178,3 +180,29 @@ NAME                                            HOSTS                      ADDRE
 ```
 
 3. Open `http://app.crawlerx.com` to view the CrawlerX web UI in the browser.
+
+#### 5. Access Other Resources.
+
+1. Get Pods
+```
+kubectl get pods -n <NAMESPACE>
+```
+![Pods](https://github.com/leopardslab/CrawlerX/blob/master/resources/helm/helm_1.png)
+
+2. Get Services
+```
+kubectl get svc -n <NAMESPACE>
+```
+![Pods](https://github.com/leopardslab/CrawlerX/blob/master/resources/helm/helm_2.png)
+
+3. Get Ingress
+```
+kubectl get ing -n <NAMESPACE>
+```
+![Pods](https://github.com/leopardslab/CrawlerX/blob/master/resources/helm/helm_3.png)
+
+4. Get Config Maps
+```
+kubectl get configmaps -n <NAMESPACE>
+```
+![Pods](https://github.com/leopardslab/CrawlerX/blob/master/resources/helm/helm_4.png)
