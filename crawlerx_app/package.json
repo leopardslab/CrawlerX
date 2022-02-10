@@ -16,7 +16,7 @@
     "dotenv-webpack": "^7.0.2",
     "file-saver": "^2.0.5",
     "firebase": "^7.14.5",
-    "node-sass": "^4.14.1",
+    "node-sass": "^7.0.0",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "sass-loader": "^8.0.2",
