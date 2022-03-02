@@ -56,7 +56,7 @@ pytz==2020.1
 queuelib==1.5.0
 requests==2.23.0
 rsa==4.0
-Scrapy==2.1.0
+Scrapy==2.6.0
 scrapyd==1.2.1
 scrapyd-client==1.1.0
 service-identity==18.1.0
