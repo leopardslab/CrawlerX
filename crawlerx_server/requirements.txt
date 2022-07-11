@@ -20,7 +20,6 @@ distlib==0.3.0
 Django==3.0.5
 django-cors-headers==3.4.0
 django-rest-framework-mongoengine==3.4.1
-djongo==1.3.3
 ecdsa==0.15
 elasticsearch==7.8.1
 fastapi==0.55.1
@@ -72,9 +71,7 @@ vine==1.3.0
 virtualenv==20.0.21
 w3lib==1.22.0
 websockets==8.1
-zipp==3.1.0
-zope.interface==5.1.0
 django-celery-beat==2.1.0
-django-environ==0.4.5
+django-environ==0.8.0
 future==0.18.2
 django-createsuperuserwithpassword==2.0.0
