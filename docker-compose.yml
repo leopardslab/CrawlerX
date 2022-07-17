@@ -78,6 +78,19 @@ services:
       - elasticsearch
       - rabbitmq
 
+  tor-proxy:
+    image: "dperson/torproxy:latest"
+    hostname: "tor-proxy"
+    restart: on-failure 
+    ports:
+      - "9050:9050"
+      - "8118:8118"
+    environment:
+      TOR_NewCircuitPeriod: 6000
+      BW: 1000
+    depends_on:
+      - scrapy
+
   rabbitmq:
     image: "rabbitmq:3-management"
     hostname: "rabbit"
