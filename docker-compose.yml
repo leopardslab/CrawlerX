@@ -90,6 +90,7 @@ services:
     environment:
       TOR_NewCircuitPeriod: 6000
       BW: 1000
+      PASSWORD: 'admin'
     depends_on:
       - scrapy
 
