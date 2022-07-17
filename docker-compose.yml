@@ -73,6 +73,8 @@ services:
     environment:
       <<: *mongo-variables
       <<: *elasticsearch-variables
+      TOR_PROXY_SERVICE_HOST: tor-proxy
+      TOR_PROXY_SERVICE_PORT: 8118
     depends_on:
       - mongodb
       - elasticsearch
