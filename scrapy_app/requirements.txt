@@ -8,3 +8,4 @@ python-scrapyd-api==2.1.2
 APScheduler==3.6.3
 django-environ==0.8.0
 Twisted==20.3.0
+stem==1.8.0
