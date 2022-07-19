@@ -274,8 +274,10 @@
 </template>
 
 <script>
-  import firebase from "firebase/app";
-  import {EventBus} from '../router/bus'
+  import firebase from 'firebase/compat/app';
+  import 'firebase/compat/auth';
+  import 'firebase/compat/firestore';
+  import {EventBus} from '@/router/bus'
 
   const separator = {
     template: `<hr style="border-color: rgba(0, 0, 0, 0.1); margin: 20px;">`
@@ -285,7 +287,7 @@
     name: 'Home',
     components: {}, created() {
       EventBus.$on('project_data', data => {
-        var currentProjectData = [];
+        const currentProjectData = [];
         data.forEach(function (obj) {
           currentProjectData.push(obj.project_name);
         });
@@ -303,7 +305,7 @@
       urlsState() {
         let regex = new RegExp(/^(http|https):\/\/[^ "]+$/);
         if (this.jobForm.urlValue.length > 0) {
-          var isValidUrl = true;
+          let isValidUrl = true;
           this.jobForm.urlValue.forEach(function (obj) {
             if (!regex.test(obj.toString())) {
               isValidUrl = false;

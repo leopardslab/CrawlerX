@@ -6,7 +6,14 @@
 # https://docs.scrapy.org/en/latest/topics/spider-middleware.html
 
 from scrapy import signals
+from scrapy.utils.project import get_project_settings
+from stem import Signal
+from stem.control import Controller
 
+def new_tor_identity():
+    with Controller.from_port(port=9051) as controller:
+        controller.authenticate(password='PASSWORDHERE')
+        controller.signal(Signal.NEWNYM)
 
 class ScrapyAppSpiderMiddleware:
     # Not all methods need to be defined. If a method is not defined,
@@ -64,14 +71,17 @@ class ScrapyAppDownloaderMiddleware:
     @classmethod
     def from_crawler(cls, crawler):
         # This method is used by Scrapy to create your spiders.
-        s = cls()
+        s = cls(user_agent=crawler.settings.get('USER_AGENT'))
         crawler.signals.connect(s.spider_opened, signal=signals.spider_opened)
         return s
 
     def process_request(self, request, spider):
         # Called for each request that goes through the downloader
         # middleware.
-
+        if spider.name == 'tor-onion':
+            new_tor_identity()
+            settings = get_project_settings()
+            request.meta['proxy'] = 'http://' + settings.get('TOR_PROXY_HOST') + ':' + settings.get('TOR_PROXY_PORT')
         # Must either:
         # - return None: continue processing this request
         # - or return a Response object
@@ -82,7 +92,10 @@ class ScrapyAppDownloaderMiddleware:
 
     def process_response(self, request, response, spider):
         # Called with the response returned from the downloader.
-
+        if spider.name == 'tor-onion':
+            if response.status != 200:
+                new_tor_identity()
+                return request
         # Must either;
         # - return a Response object
         # - return a Request object

@@ -68,15 +68,31 @@ services:
     build:
         context: ./scrapy_app
         dockerfile: Dockerfile
-    expose:
-      - 6800
+    ports:
+      - 6800:6800    
     environment:
       <<: *mongo-variables
       <<: *elasticsearch-variables
+      TOR_PROXY_SERVICE_HOST: tor-proxy
+      TOR_PROXY_SERVICE_PORT: 8118
     depends_on:
       - mongodb
       - elasticsearch
       - rabbitmq
+
+  tor-proxy:
+    image: "dperson/torproxy:latest"
+    hostname: "tor-proxy"
+    restart: on-failure 
+    ports:
+      - "9050:9050"
+      - "8118:8118"
+    environment:
+      TOR_NewCircuitPeriod: 6000
+      BW: 1000
+      PASSWORD: 'admin'
+    depends_on:
+      - scrapy
 
   rabbitmq:
     image: "rabbitmq:3-management"
@@ -118,6 +134,7 @@ services:
     build:
       context: ./crawlerx_app
       dockerfile: Dockerfile
+    command: [ "npm", "run", "serve" ]
     ports:
       - "8080:8080"
     environment: 
@@ -130,7 +147,9 @@ services:
       VUE_APP_FIREBASE_APP_ID: "1:811171439353:web:64e84b4fc347a5c37eb828"
       VUE_APP_FIREBASE_MEASURMENT_ID: "G-CM2MX0CRRC"
       VUE_APP_DJANGO_PROTOCOL: "http"
-      VUE_APP_DJANGO_HOSTNAME: "django"
+      VUE_APP_DJANGO_HOSTNAME: "localhost"
       VUE_APP_DJANGO_PORT: "8000"  
     depends_on:
-      - django     
+      - django
+    volumes:
+      - ./crawlerx_app:/app
