@@ -32,7 +32,7 @@ importlib-metadata==1.6.0
 incremental==17.5.0
 items==0.6.5
 kombu==4.6.10
-lxml==4.5.1
+lxml==4.9.1
 mongoengine==0.20.0
 nulltype==2.3.1
 parsel==1.6.0
