@@ -75,30 +75,24 @@
             </div>
           </div>
           <div class="card-body">
-            <form role="form">
+            <form action="#" @submit.prevent="handleSubmit">
               <div class="mb-3">
-                <soft-input
-                  id="name"
-                  type="text"
-                  placeholder="Name"
-                  aria-label="Name"
-                />
-              </div>
-              <div class="mb-3">
-                <soft-input
+                <input
                   id="email"
                   type="email"
+                  name="email"
+                  class="form-control"
                   placeholder="Email"
-                  aria-label="Email"
-                />
+                  v-model="email" />
               </div>
               <div class="mb-3">
-                <soft-input
+                <input
                   id="password"
                   type="password"
+                  name="password"
+                  class="form-control"
                   placeholder="Password"
-                  aria-label="Password"
-                />
+                  v-model="password" />
               </div>
               <div class="text-center">
                 <soft-button
@@ -127,15 +121,20 @@
 </template>
 
 <script>
-import SoftInput from "@/components/SoftInput.vue";
 import SoftButton from "@/components/SoftButton.vue";
-
 import { mapMutations } from "vuex";
+import router from "@/router";
+import store from "@/store";
 
 export default {
   name: "SignupBasic",
+  data() {
+    return {
+      email: '',
+      password: ''
+    };
+  },
   components: {
-    SoftInput,
     SoftButton,
   },
   created() {
@@ -147,6 +146,17 @@ export default {
     this.toggleHideConfig();
   },
   methods: {
+    handleSubmit: async function() {
+      try {
+        await store.dispatch('signup', {
+          email: this.email,
+          password: this.password
+        })
+        router.push('/dashboard')
+      } catch (err) {
+        alert(err.message)
+      }
+    },
     ...mapMutations(["toggleEveryDisplay", "toggleHideConfig"]),
   },
 };
