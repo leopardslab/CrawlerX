@@ -23,6 +23,7 @@
             type="button"
             class="mb-0 btn btn-sm"
             :class="`btn-outline-${action.color}`"
+
           >
             {{ action.label }}
           </button>

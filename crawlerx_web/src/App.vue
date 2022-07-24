@@ -35,7 +35,7 @@ export default {
     AppFooter,
   },
   methods: {
-    ...mapMutations(["toggleConfigurator", "navbarMinimize"]),
+    ...mapMutations(["toggleConfigurator", "navbarMinimize", "onFirebaseAuthStateChanged"]),
   },
   computed: {
     navClasses() {
@@ -49,6 +49,7 @@ export default {
     },
   },
   beforeMount() {
+    this.onFirebaseAuthStateChanged();
     this.$store.state.isTransparent = "bg-transparent";
   },
 };

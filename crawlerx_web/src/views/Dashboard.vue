@@ -3,8 +3,8 @@
     <div class="row">
       <div class="col-xl-3 col-sm-6 mb-xl-0 mb-4">
         <mini-statistics-card
-          title="Today's Money"
-          value="$53,000"
+          title="Total Projects"
+          value="2"
           :percentage="{
             value: '+505%',
             color: 'text-success',
@@ -18,8 +18,8 @@
       </div>
       <div class="col-xl-3 col-sm-6 mb-xl-0 mb-4">
         <mini-statistics-card
-          title="Today's Users"
-          value="2,300"
+          title="Running Crawl Jobs"
+          value="23"
           :percentage="{
             value: '+3%',
             color: 'text-success',
@@ -33,8 +33,8 @@
       </div>
       <div class="col-xl-3 col-sm-6 mb-xl-0 mb-4">
         <mini-statistics-card
-          title="New Clients"
-          value="+3,462"
+          title="Completed Crawl Jobs"
+          value="10"
           :percentage="{
             value: '-2%',
             color: 'text-danger',
@@ -48,8 +48,8 @@
       </div>
       <div class="col-xl-3 col-sm-6 mb-xl-0">
         <mini-statistics-card
-          title="Sales"
-          value="$103,430"
+          title="Failed Crawl Jobs"
+          value="1"
           :percentage="{
             value: '+5%',
             color: 'text-success',
