@@ -24,21 +24,23 @@
                   <p class="mb-0">Enter your email and password to sign in</p>
                 </div>
                 <div class="card-body">
-                  <form role="form" class="text-start">
+                  <form action="#" role="form" @submit.prevent="handleSubmit" class="text-start">
                     <label>Email</label>
-                    <soft-input
+                    <input
                       id="email"
                       type="email"
-                      placeholder="Email"
                       name="email"
-                    />
+                      class="form-control"
+                      placeholder="Email"
+                      v-model="email" />
                     <label>Password</label>
-                    <soft-input
+                    <input
                       id="password"
                       type="password"
-                      placeholder="Password"
                       name="password"
-                    />
+                      class="form-control"
+                      placeholder="Password"
+                      v-model="password" />
                     <div class="text-center">
                       <soft-button
                         class="my-4 mb-2"
@@ -85,15 +87,21 @@
 </template>
 
 <script>
-import SoftInput from "@/components/SoftInput.vue";
 import SoftButton from "@/components/SoftButton.vue";
 const body = document.getElementsByTagName("body")[0];
 import { mapMutations } from "vuex";
+import store from "@/store";
+import router from "@/router";
 
 export default {
   name: "SignIn",
+  data() {
+    return {
+      email: '',
+      password: ''
+    };
+  },
   components: {
-    SoftInput,
     SoftButton,
   },
   created() {
@@ -107,6 +115,17 @@ export default {
     body.classList.add("bg-gray-100");
   },
   methods: {
+    async handleSubmit() {
+      try {
+        await store.dispatch('login', {
+          email: this.email,
+          password: this.password
+        })
+        router.push('/dashboard')
+      } catch (err) {
+        alert(err.message)
+      }
+    },
     ...mapMutations(["toggleEveryDisplay", "toggleHideConfig"]),
   },
 };
