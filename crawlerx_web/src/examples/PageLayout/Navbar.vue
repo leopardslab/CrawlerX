@@ -54,26 +54,6 @@
               Profile
             </router-link>
           </li>
-          <li class="nav-item">
-            <router-link class="nav-link me-2" to="/sign-up">
-              <i
-                class="fas fa-user-circle opacity-6 me-1"
-                aria-hidden="true"
-                :class="isBlur ? 'text-dark' : 'text-white'"
-              ></i>
-              Sign Up
-            </router-link>
-          </li>
-          <li class="nav-item">
-            <router-link class="nav-link me-2" to="/sign-in">
-              <i
-                class="fas fa-key opacity-6 me-1"
-                aria-hidden="true"
-                :class="isBlur ? 'text-dark' : 'text-white'"
-              ></i>
-              Sign In
-            </router-link>
-          </li>
         </ul>
         <ul class="navbar-nav d-lg-block d-none">
           <li class="nav-item">
@@ -94,6 +74,8 @@
 <script>
 import downArrWhite from "@/assets/img/down-arrow-white.svg";
 import downArrBlack from "@/assets/img/down-arrow-dark.svg";
+import store from "@/store";
+import router from "@/router";
 
 export default {
   name: "navbar",
