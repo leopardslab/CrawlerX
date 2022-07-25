@@ -1,7 +1,6 @@
 <template>
   <aside
-    class="my-3 overflow-auto border-0 sidenav navbar navbar-vertical navbar-expand-xs border-radius-xl"
-    :class="isRTL ? 'me-3 rotate-caret' : 'ms-3'"
+    class="my-3 ms-3 overflow-auto border-0 sidenav navbar navbar-vertical navbar-expand-xs border-radius-xl"
     id="sidenav-main"
   >
     <div class="sidenav-header">
@@ -11,8 +10,8 @@
         id="iconSidenav"
       ></i>
       <a class="m-0 navbar-brand" href="/">
-        <img :src="logo" class="navbar-brand-img h-100" alt="main_logo" />
-        <span class="ms-1 font-weight-bold">CrawlerX Web Platform</span>
+        <img :src="logo" class="navbar-brand-img" alt="main_logo"
+             style="max-height: 100px; max-width: 200px; margin-top: -33px;"/>
       </a>
     </div>
     <hr class="mt-0 horizontal dark" />
@@ -21,7 +20,7 @@
 </template>
 <script>
 import SidenavList from "./SidenavList.vue";
-import logo from "@/assets/img/logo-ct.png";
+import logo from "@/assets/img/logos/crawlerx.png";
 import { mapState } from "vuex";
 
 export default {

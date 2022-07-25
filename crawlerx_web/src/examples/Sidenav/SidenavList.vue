@@ -12,7 +12,42 @@
         </sidenav-collapse>
       </li>
       <li class="nav-item">
-        <sidenav-collapse navText="Tables" :to="{ name: 'Tables' }">
+        <sidenav-collapse navText="Profile" :to="{ name: 'Profile' }">
+          <template #icon>
+            <customer-support />
+          </template>
+        </sidenav-collapse>
+      </li>
+      <li class="mt-3 nav-item">
+        <h6
+          class="text-xs ms-2 ps-4 text-uppercase font-weight-bolder opacity-6"
+        >
+          FEATURES
+        </h6>
+      </li>
+      <li class="nav-item">
+        <sidenav-collapse navText="Projects" :to="{ name: 'Tables' }">
+          <template #icon>
+            <office />
+          </template>
+        </sidenav-collapse>
+      </li>
+      <li class="nav-item">
+        <sidenav-collapse navText="Instant Jobs" :to="{ name: 'Tables' }">
+          <template #icon>
+            <office />
+          </template>
+        </sidenav-collapse>
+      </li>
+      <li class="nav-item">
+        <sidenav-collapse navText="Interval Jobs" :to="{ name: 'Tables' }">
+          <template #icon>
+            <office />
+          </template>
+        </sidenav-collapse>
+      </li>
+      <li class="nav-item">
+        <sidenav-collapse navText="Cron Jobs" :to="{ name: 'Tables' }">
           <template #icon>
             <office />
           </template>
@@ -20,14 +55,13 @@
       </li>
       <li class="mt-3 nav-item">
         <h6
-          class="text-xs ps-4 text-uppercase font-weight-bolder opacity-6"
-          :class="this.$store.state.isRTL ? 'me-4' : 'ms-2'"
+          class="text-xs ms-2 ps-4 text-uppercase font-weight-bolder opacity-6"
         >
-          PAGES
+          ANALYSIS
         </h6>
       </li>
       <li class="nav-item">
-        <sidenav-collapse navText="Profile" :to="{ name: 'Profile' }">
+        <sidenav-collapse navText="Elasticsearch" :to="{ name: 'Tables' }">
           <template #icon>
             <customer-support />
           </template>
