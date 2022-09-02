@@ -4,13 +4,15 @@ from scrapy.spiders import CrawlSpider
 from scrapy_app.spider_common import common_parser
 
 
-class CrawlItem(scrapy.Item):
-    title = scrapy.Field()
-    link = scrapy.Field()
-
-
 class MediumSpider(CrawlSpider):
     name = "medium"
+    custom_settings = {
+        'AUTOTHROTTLE_ENABLED': True,
+        'AUTOTHROTTLE_DEBUG': True,
+        'DOWNLOAD_DELAY': 1,
+        'ROBOTSTXT_OBEY': True,
+        'DUPEFILTER_CLASS': 'scrapy.dupefilters.BaseDupeFilter',
+    }
 
     def __init__(self, *args, **kwargs):
         self.url = kwargs.get('url')
