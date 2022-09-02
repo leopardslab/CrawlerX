@@ -92,8 +92,14 @@ def schedule_cron_job(self, **kwargs):
                 or not crawler_name or not job_name:
             raise Exception('Required parameters are missing in the consumed message')
 
-        if check_url_gives_response(job_url):
+        is_valid_url = True
+        if crawler_name != "tor_onion":
+            is_valid_url = check_url_gives_response(job_url)
             job_domain = urlparse(job_url).netloc
+        else:
+            job_domain = job_url
+
+        if is_valid_url:
             try:
                 settings = {
                     'unique_id': unique_id,
@@ -108,8 +114,7 @@ def schedule_cron_job(self, **kwargs):
                 # print(scrapyd.list_spiders("crawlerx_project"))
 
                 # Schedule a crawl job with project and a specific spider
-                task_id = \
-                    scrapy_daemon.schedule("crawlerx_project", crawler_name, settings=settings,
+                task_id = scrapy_daemon.schedule("crawlerx_project", crawler_name, settings=settings,
                                            url=job_url, domain=job_domain)
 
                 mongo_connection = MongoConnection()
