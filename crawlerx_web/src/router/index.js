@@ -1,6 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import Dashboard from '@/views/Dashboard.vue';
-import Tables from '@/views/Tables.vue';
+import Elasticsearch from '@/views/Elasticsearch.vue';
 import Profile from '@/views/Profile.vue';
 import SignIn from '@/views/SignIn.vue';
 import SignUp from '@/views/SignUp.vue';
@@ -56,9 +56,9 @@ const routes = [
     },
   },
   {
-    path: '/tables',
-    name: 'Tables',
-    component: Tables,
+    path: '/analysis/elasticsearch',
+    name: 'Elasticsearch',
+    component: Elasticsearch,
     meta: {
       requiresAuth: true,
     },

@@ -68,7 +68,7 @@
         </h6>
       </li>
       <li class="nav-item">
-        <sidenav-collapse navText="Elasticsearch" :to="{ name: 'Tables' }">
+        <sidenav-collapse navText="Elasticsearch" :to="{ name: 'Elasticsearch' }">
           <template #icon>
             <customer-support />
           </template>
