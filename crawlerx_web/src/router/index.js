@@ -5,6 +5,7 @@ import Profile from '@/views/Profile.vue';
 import SignIn from '@/views/SignIn.vue';
 import SignUp from '@/views/SignUp.vue';
 import Projects from '@/views/Projects.vue';
+import Instant from '@/views/InstantJob.vue';
 import store from "@/store";
 
 const routes = [
@@ -24,6 +25,14 @@ const routes = [
     path: '/projects',
     name: 'Projects',
     component: Projects,
+    meta: {
+      requiresAuth: true,
+    },
+  },
+  {
+    path: '/jobs/instant',
+    name: 'Instant',
+    component: Instant,
     meta: {
       requiresAuth: true,
     },

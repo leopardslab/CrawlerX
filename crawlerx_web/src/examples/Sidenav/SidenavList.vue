@@ -32,8 +32,15 @@
           </template>
         </sidenav-collapse>
       </li>
+      <li class="mt-3 nav-item">
+        <h6
+          class="text-xs ms-2 ps-4 text-uppercase font-weight-bolder opacity-6"
+        >
+          JOBS
+        </h6>
+      </li>
       <li class="nav-item">
-        <sidenav-collapse navText="Instant Jobs" :to="{ name: 'Tables' }">
+        <sidenav-collapse navText="Instant" :to="{ name: 'Instant' }">
           <template #icon>
             <office />
           </template>
