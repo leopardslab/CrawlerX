@@ -26,7 +26,7 @@
         </h6>
       </li>
       <li class="nav-item">
-        <sidenav-collapse navText="Projects" :to="{ name: 'Tables' }">
+        <sidenav-collapse navText="Projects" :to="{ name: 'Projects' }">
           <template #icon>
             <office />
           </template>

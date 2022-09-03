@@ -4,6 +4,7 @@ import Tables from '@/views/Tables.vue';
 import Profile from '@/views/Profile.vue';
 import SignIn from '@/views/SignIn.vue';
 import SignUp from '@/views/SignUp.vue';
+import Projects from '@/views/Projects.vue';
 import store from "@/store";
 
 const routes = [
@@ -15,6 +16,14 @@ const routes = [
     path: '/dashboard',
     name: 'Dashboard',
     component: Dashboard,
+    meta: {
+      requiresAuth: true,
+    },
+  },
+  {
+    path: '/projects',
+    name: 'Projects',
+    component: Projects,
     meta: {
       requiresAuth: true,
     },
