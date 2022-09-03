@@ -4,7 +4,9 @@
       <div class="col-xl-3 col-sm-6 mb-xl-0 mb-4">
         <mini-statistics-card
           title="Total Projects"
-          value="2"
+          :value="{
+            text: projectCount,
+          }"
           :percentage="{
             value: '+505%',
             color: 'text-success',
@@ -19,7 +21,9 @@
       <div class="col-xl-3 col-sm-6 mb-xl-0 mb-4">
         <mini-statistics-card
           title="Running Jobs"
-          value="23"
+          :value="{
+            text: pendingJobCount,
+          }"
           :percentage="{
             value: '+3%',
             color: 'text-warning',
@@ -34,7 +38,9 @@
       <div class="col-xl-3 col-sm-6 mb-xl-0 mb-4">
         <mini-statistics-card
           title="Completed Jobs"
-          value="10"
+          :value="{
+            text: completedJobCount,
+          }"
           :percentage="{
             value: '-2%',
             color: 'text-danger',
@@ -49,7 +55,9 @@
       <div class="col-xl-3 col-sm-6 mb-xl-0">
         <mini-statistics-card
           title="Failed Jobs"
-          value="1"
+          :value="{
+            text: failedJobCount,
+          }"
           :percentage="{
             value: '+5%',
             color: 'text-success',
@@ -127,6 +135,10 @@ export default {
       faScrewdriverWrench,
       faUsers,
       faHandPointer,
+      projectCount: 0,
+      completedJobCount: 0,
+      pendingJobCount: 0,
+      failedJobCount: 0,
     };
   },
   components: {
