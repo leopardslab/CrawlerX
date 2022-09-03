@@ -47,7 +47,7 @@
         </sidenav-collapse>
       </li>
       <li class="nav-item">
-        <sidenav-collapse navText="Interval Jobs" :to="{ name: 'Tables' }">
+        <sidenav-collapse navText="Interval" :to="{ name: 'Interval' }">
           <template #icon>
             <office />
           </template>

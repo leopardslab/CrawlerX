@@ -6,6 +6,7 @@ import SignIn from '@/views/SignIn.vue';
 import SignUp from '@/views/SignUp.vue';
 import Projects from '@/views/Projects.vue';
 import Instant from '@/views/InstantJob.vue';
+import Interval from '@/views/IntervalJob.vue';
 import store from "@/store";
 
 const routes = [
@@ -33,6 +34,14 @@ const routes = [
     path: '/jobs/instant',
     name: 'Instant',
     component: Instant,
+    meta: {
+      requiresAuth: true,
+    },
+  },
+  {
+    path: '/jobs/interval',
+    name: 'Interval',
+    component: Interval,
     meta: {
       requiresAuth: true,
     },
