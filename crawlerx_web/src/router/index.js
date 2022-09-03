@@ -7,6 +7,7 @@ import SignUp from '@/views/SignUp.vue';
 import Projects from '@/views/Projects.vue';
 import Instant from '@/views/InstantJob.vue';
 import Interval from '@/views/IntervalJob.vue';
+import Cron from '@/views/CronJob.vue';
 import store from "@/store";
 
 const routes = [
@@ -42,6 +43,14 @@ const routes = [
     path: '/jobs/interval',
     name: 'Interval',
     component: Interval,
+    meta: {
+      requiresAuth: true,
+    },
+  },
+  {
+    path: '/jobs/cron',
+    name: 'Cron',
+    component: Cron,
     meta: {
       requiresAuth: true,
     },

@@ -54,7 +54,7 @@
         </sidenav-collapse>
       </li>
       <li class="nav-item">
-        <sidenav-collapse navText="Cron Jobs" :to="{ name: 'Tables' }">
+        <sidenav-collapse navText="Cron" :to="{ name: 'Cron' }">
           <template #icon>
             <office />
           </template>
