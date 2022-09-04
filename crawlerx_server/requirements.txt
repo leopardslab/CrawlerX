@@ -42,7 +42,7 @@ Protego==0.1.16
 pyasn1==0.4.8
 pyasn1-modules==0.2.8
 pycparser==2.20
-pydantic==1.5.1
+pydantic==1.6.2
 PyDispatcher==2.0.5
 PyHamcrest==2.0.2
 pymongo==3.10.1
