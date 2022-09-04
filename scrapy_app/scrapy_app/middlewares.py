@@ -71,14 +71,14 @@ class ScrapyAppDownloaderMiddleware:
     @classmethod
     def from_crawler(cls, crawler):
         # This method is used by Scrapy to create your spiders.
-        s = cls(user_agent=crawler.settings.get('USER_AGENT'))
+        s = cls()
         crawler.signals.connect(s.spider_opened, signal=signals.spider_opened)
         return s
 
     def process_request(self, request, spider):
         # Called for each request that goes through the downloader
         # middleware.
-        if spider.name == 'tor-onion':
+        if spider.name == 'tor_onion':
             new_tor_identity()
             settings = get_project_settings()
             request.meta['proxy'] = 'http://' + settings.get('TOR_PROXY_HOST') + ':' + settings.get('TOR_PROXY_PORT')
@@ -92,7 +92,7 @@ class ScrapyAppDownloaderMiddleware:
 
     def process_response(self, request, response, spider):
         # Called with the response returned from the downloader.
-        if spider.name == 'tor-onion':
+        if spider.name == 'tor_onion':
             if response.status != 200:
                 new_tor_identity()
                 return request

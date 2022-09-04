@@ -422,7 +422,7 @@
         isOnMobile: false,
         projectOptions: [],
         selectedProject: null,
-        crawlerOptions: ["crawlerx", "stackoverflow", "wikipedia", "reddit", "github_trending", "tor_onion"],
+        crawlerOptions: ["crawlerx", "stackoverflow", "wikipedia", "reddit", "github_trending", "tor_onion", "medium", "research_gate"],
         selectedGranularity: "HOURS",
         granularityOptions: ["MINUTES", "HOURS", "DAYS"],
         selectedScheduleType: 0,
