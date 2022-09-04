@@ -26,28 +26,35 @@
         </h6>
       </li>
       <li class="nav-item">
-        <sidenav-collapse navText="Projects" :to="{ name: 'Tables' }">
+        <sidenav-collapse navText="Projects" :to="{ name: 'Projects' }">
+          <template #icon>
+            <office />
+          </template>
+        </sidenav-collapse>
+      </li>
+      <li class="mt-3 nav-item">
+        <h6
+          class="text-xs ms-2 ps-4 text-uppercase font-weight-bolder opacity-6"
+        >
+          JOBS
+        </h6>
+      </li>
+      <li class="nav-item">
+        <sidenav-collapse navText="Instant" :to="{ name: 'Instant' }">
           <template #icon>
             <office />
           </template>
         </sidenav-collapse>
       </li>
       <li class="nav-item">
-        <sidenav-collapse navText="Instant Jobs" :to="{ name: 'Tables' }">
+        <sidenav-collapse navText="Interval" :to="{ name: 'Interval' }">
           <template #icon>
             <office />
           </template>
         </sidenav-collapse>
       </li>
       <li class="nav-item">
-        <sidenav-collapse navText="Interval Jobs" :to="{ name: 'Tables' }">
-          <template #icon>
-            <office />
-          </template>
-        </sidenav-collapse>
-      </li>
-      <li class="nav-item">
-        <sidenav-collapse navText="Cron Jobs" :to="{ name: 'Tables' }">
+        <sidenav-collapse navText="Cron" :to="{ name: 'Cron' }">
           <template #icon>
             <office />
           </template>
@@ -61,7 +68,7 @@
         </h6>
       </li>
       <li class="nav-item">
-        <sidenav-collapse navText="Elasticsearch" :to="{ name: 'Tables' }">
+        <sidenav-collapse navText="Elasticsearch" :to="{ name: 'Elasticsearch' }">
           <template #icon>
             <customer-support />
           </template>

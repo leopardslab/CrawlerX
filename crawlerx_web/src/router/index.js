@@ -1,9 +1,13 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import Dashboard from '@/views/Dashboard.vue';
-import Tables from '@/views/Tables.vue';
+import Elasticsearch from '@/views/Elasticsearch.vue';
 import Profile from '@/views/Profile.vue';
 import SignIn from '@/views/SignIn.vue';
 import SignUp from '@/views/SignUp.vue';
+import Projects from '@/views/Projects.vue';
+import Instant from '@/views/InstantJob.vue';
+import Interval from '@/views/IntervalJob.vue';
+import Cron from '@/views/CronJob.vue';
 import store from "@/store";
 
 const routes = [
@@ -20,9 +24,41 @@ const routes = [
     },
   },
   {
-    path: '/tables',
-    name: 'Tables',
-    component: Tables,
+    path: '/projects',
+    name: 'Projects',
+    component: Projects,
+    meta: {
+      requiresAuth: true,
+    },
+  },
+  {
+    path: '/jobs/instant',
+    name: 'Instant',
+    component: Instant,
+    meta: {
+      requiresAuth: true,
+    },
+  },
+  {
+    path: '/jobs/interval',
+    name: 'Interval',
+    component: Interval,
+    meta: {
+      requiresAuth: true,
+    },
+  },
+  {
+    path: '/jobs/cron',
+    name: 'Cron',
+    component: Cron,
+    meta: {
+      requiresAuth: true,
+    },
+  },
+  {
+    path: '/analysis/elasticsearch',
+    name: 'Elasticsearch',
+    component: Elasticsearch,
     meta: {
       requiresAuth: true,
     },
